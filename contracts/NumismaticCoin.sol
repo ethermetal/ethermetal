@@ -1,6 +1,7 @@
 pragma solidity ^0.4.13;
 
 contract NumismaticCoin {
+    enum RecordState { normal, pickedUp, repoed, lostOrStolen }
     struct Record {
         // Who currently owns the item. This will be 0 if it has been assigned
         address owner;
@@ -20,12 +21,8 @@ contract NumismaticCoin {
         uint storageFee;
         // The late fee due if storage fee is not paid on time in wei
         uint lateFee;
-        // If the item has been picked up this will be true.
-        bool pickedUp;
-        // If the item has repoed. This can occur if the storage fees are over a year past due
-        bool repoed;
-        // If the item is lost or stolen
-        bool lostOrStolen;
+        // State of the item
+        RecordState state;
     }
 
     // Notify a numismatic coin has been transferred    
@@ -61,12 +58,34 @@ contract NumismaticCoin {
     event LostOrStolen (
         uint recordId
     );
+    event Listed (
+        uint recordId,
+        uint price
+    );
+    event Unlisted (
+        uint recordId
+    );
+    event ListingSold (
+        uint recordId,
+        uint price
+    );
 
     mapping(uint => Record) public records; 
     uint public numRecords;
 
     mapping(uint => string) public warehouses;
     uint public numWarehouses;
+
+    // Listings of coins for sale
+    mapping(uint => uint) public listing;
+
+    // Balances for coins sold
+    mapping(address => uint) balances;
+
+    // Total balance of storage fees
+    uint public storageBalance;
+
+    uint[] public featured;
 
     address public owner;
 
@@ -123,18 +142,60 @@ contract NumismaticCoin {
        records[_recordId].storageFee = storageFee;
        records[_recordId].lateFee = lateFee;
     }
+    
+    // List a coin
+    function list(uint _recordId, uint price) onlyOwner(_recordId) returns (bool success) {
+       require(records[_recordId].state == RecordState.normal); 
+       Listed(_recordId, price);
+
+       listing[_recordId] = price;
+       return true;
+    }
+
+    // Un-list a coin
+    function unlist(uint _recordId) onlyOwner(_recordId) returns (bool success) {
+       require(listing[_recordId] != 0);
+       Unlisted(_recordId);
+       listing[_recordId] = 0;
+       return true;
+    }
+
+    // Buy a coin listed 
+    function buy(uint _recordId) payable returns (bool success) {
+       require(listing[_recordId] > 0);
+       require(listing[_recordId] == msg.value);
+       require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.normal );
+       ListingSold(_recordId, listing[_recordId]);
+       listing[_recordId] = 0;
+       var oldOwner = records[_recordId].owner;
+       records[_recordId].owner = msg.sender;
+       // Seller could potentially be a contract, which fails here preventing a sale.
+       balances[oldOwner] += msg.value;
+       return true;
+    }
+   
+    // Withdraw balance for coins sold
+    function withdraw() {
+       require(balances[msg.sender] > 0);
+       var withdrawal = balances[msg.sender];
+       balances[msg.sender] = 0;
+       msg.sender.transfer(withdrawal);
+    } 
 
     // Change the owner of a numismatic coin
     function setOwner(uint _recordId, address _newOwner) onlyOwner(_recordId) returns (bool success) {
+       // Don't allow transfer when not listed
+       require(listing[_recordId] == 0);
        var oldOwner = records[_recordId].owner;
        records[_recordId].owner = _newOwner;
        Transfer(_recordId, oldOwner, _newOwner);
        return true;
     }
-
+    
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
     // The item may be picked up after it is assigned
     function setAssignee(uint _recordId, string _assignee) onlyOwner(_recordId) {
+       require(listing[_recordId] == 0);
        records[_recordId].owner = 0;
        records[_recordId].assignee = _assignee;
        Assignment(_recordId, _assignee);
@@ -144,16 +205,16 @@ contract NumismaticCoin {
     function pickup(uint _recordId) onlyMasterOwner {
        require(!emptyStr(records[_recordId].assignee));
        require(records[_recordId].owner == 0);
-       records[_recordId].pickedUp = true;
+       records[_recordId].state = RecordState.pickedUp;
+       listing[_recordId] = 0;
     }
 
     // This function can be used to mark items a repo'ed if the storage fees have not been paid
     function repo(uint _recordId) onlyMasterOwner returns(bool success) {
        if((now > (records[_recordId].storagePaidThru + (1 years))) 
-           && (!records[_recordId].repoed) 
-           && (!records[_recordId].lostOrStolen) 
-           && (!records[_recordId].pickedUp)) {
-           records[_recordId].repoed = true;
+           && records[_recordId].state == RecordState.normal)  {
+           listing[_recordId] = 0; 
+           records[_recordId].state = RecordState.repoed;
            return true;
        } else {
            return false;
@@ -194,9 +255,7 @@ contract NumismaticCoin {
     // Pay the required storage fee for a coin
     function payStorage(uint _recordId) payable {
        // Don't allow paying additional storage fee if the item is no longer in the warehouse
-       require((!records[_recordId].repoed)
-          && (!records[_recordId].pickedUp) 
-          && (!records[_recordId].lostOrStolen));
+       require(records[_recordId].state == RecordState.normal);
        if (records[_recordId].storagePaidThru > now) {
           require((msg.value >= records[_recordId].storageFee) && ((msg.value % records[_recordId].storageFee) == 0));
           records[_recordId].storagePaidThru += (msg.value / records[_recordId].storageFee)*(1 years);
@@ -205,11 +264,12 @@ contract NumismaticCoin {
               && ((msg.value - records[_recordId].lateFee)%records[_recordId].storageFee == 0));
           records[_recordId].storagePaidThru += ((msg.value - records[_recordId].lateFee) / records[_recordId].storageFee)*(1 years);
        }
+       storageBalance += msg.value;
     }
     
     // Determine how much is due
     function getAmountDue(uint _recordId) returns(uint amount) {
-       if (records[_recordId].repoed || records[_recordId].pickedUp || records[_recordId].lostOrStolen) {
+       if (records[_recordId].state != RecordState.normal) { 
            return 0;
        } else {
            if (records[_recordId].storagePaidThru > now) {
@@ -229,6 +289,8 @@ contract NumismaticCoin {
 
     // Allows the owner to withdraw money from the contract
     function withdrawFees(uint _amount) onlyMasterOwner returns(bool success) {
+       require(storageBalance >= _amount);
+       storageBalance -= _amount;
        if (msg.sender.send(_amount)) {
            return true;
        } else {
@@ -238,7 +300,37 @@ contract NumismaticCoin {
    
     // Report lost or stolen. Insurance should recover reimburse for the item
     function reportLostOrStolen(uint _recordId) onlyMasterOwner {
-       records[_recordId].lostOrStolen = true;
+       records[_recordId].state = RecordState.lostOrStolen;
+       listing[_recordId] = 0;
        LostOrStolen(_recordId);
     }
+
+    function setFeatured(uint[] _featured) onlyMasterOwner {
+       delete featured;
+       for(uint n=0;n<_featured.length;n++) {
+           featured.push(_featured[n]);
+       }
+    }
+
+    function getFeatured() returns(uint[] ids) {
+       uint[] _ids;
+       for(uint n=0;n<featured.length;n++) {
+          _ids.push(featured[n]);
+       }
+       return _ids;
+    }
+    
+    function getRecord(uint recordId) returns(address owner, string description, string assignee, string imgUrls, string warehouse, uint feesLastChanged, uint storagePaidThru, uint storageFee, uint lateFee, RecordState state, uint price) {
+       owner = records[recordId].owner;
+       description = records[recordId].description;
+       assignee = records[recordId].assignee;
+       imgUrls = records[recordId].imgUrls;
+       warehouse = warehouses[records[recordId].warehouse];
+       feesLastChanged = records[recordId].feesLastChanged;
+       storagePaidThru = records[recordId].storagePaidThru;
+       storageFee = records[recordId].storageFee;
+       lateFee = records[recordId].lateFee;
+       state = records[recordId].state;
+       price = listing[recordId];
+    } 
 }

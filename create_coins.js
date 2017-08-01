@@ -7,7 +7,7 @@ module.exports = function(callback) {
   NumismaticCoinContract.deployed().then( (instance)=>{
       web3.eth.getAccounts(function(err, accs) {
           var act = accs[0];
-          instance.addCoin(act, "Test coin", "img", 0, 1532799000,1.5e13,1.5e12, {from: act, gas:500000}).then( (tr) => {
+          instance.addCoin(act, "Test coin", "https://gateway.ipfs.io/ipfs/QmW7qjBEg251HEhdsZSGQZd2WVuhCs3Uouv79MGLRW62WB\nhttps://gateway.ipfs.io/ipfs/QmXL2euJW6peommtB2nzPQpvPpwUFZQDNpMPqdiP7HLUby", 0, 1532799000,1.5e13,1.5e12, {from: act, gas:500000}).then( (tr) => {
                  console.log("Added coin");
           });
       });

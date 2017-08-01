@@ -20,12 +20,24 @@ class App extends Component {
       dp: null
     }
     this.onFetch = this.onFetch.bind(this);
+    this.onList = this.onList.bind(this);
+    this.onAssign = this.onAssign.bind(this);
+    this.onBuy = this.onBuy.bind(this);
+    this.onWithdraw = this.onWithdraw.bind(this);
+    this.onPayStorage = this.onPayStorage.bind(this);
   }
   onFetch(id) {
       this.state.dp.getCoin(id).then( (coinInfo) => {
           this.refs.coin1.setState(coinInfo);
       });
   }
+  onAssign(coinId, assignee) {
+      this.state.dp.assign(coinId, assignee);
+  }
+  onList(coinId, price) {
+      this.state.dp.list(coinId, price);
+  }
+
   componentWillMount() {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
@@ -42,6 +54,15 @@ class App extends Component {
     .catch(() => {
       console.log('Error finding web3.')
     })
+  }
+  onBuy(coinId, price) {
+     this.state.dp.buy(coinId, price)
+  }
+  onWithdraw() {
+     this.state.dp.withdraw();
+  }
+  onPayStorage(coinId, fee) {
+     this.state.dp.payStorage(coinId,fee);
   }
 
   instantiateContract() {
@@ -74,8 +95,10 @@ class App extends Component {
         </nav>
 
         <main className="container">
+           <button onClick={this.onWithdraw}>Withdraw from account</button><br/>
            <FetchCoin onFetch={this.onFetch} />
-           <Coin ref="coin1" name="coin1" />
+           <Coin ref="coin1" onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
+           
         </main>
       </div>
     );
