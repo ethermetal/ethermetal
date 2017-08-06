@@ -3,6 +3,7 @@
 body,
 .pure-g [class*=pure-u] {
   font-family: 'Open Sans', sans-serif;
+  background-color: #efefef;
 }
 
 h1, h2, h3 {
@@ -23,7 +24,7 @@ code {
 .container {
   box-sizing: border-box;
   width: 100%;
-  padding: 45px 20px;
+  padding: 20px;
 }
 
 .pure-button-primary {
@@ -42,24 +43,55 @@ code {
 
 .navbar {
   position: static;
-  padding: 5px;
-  background: #0c1a2b;
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  padding: 0;
+  background-color: #fff;
+  box-shadow: 2px 2px 0 #ddd;
 }
 
 .navbar a {
-  color: #fff;
-}
-
-.navbar a:active,
-.navbar a:focus,
-.navbar a:hover {
-  background: #233e5e;
+  color: #0c1a2b;
 }
 
 .navbar .pure-menu-heading {
   font-weight: bold;
   text-transform: none;
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+.navbar .pure-menu-heading:hover {
+  background-color: #fff;
+  text-decoration: none;
+}
+
+.navbar .nav-link {
+  font-family: "Open Sans";
+  font-size: 13px;
+  text-decoration: underline;
+  color: #0c1a2b;
+}
+
+.navbar .fetchCoin {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.navbar .fetchCoin label {
+  margin-right: 5px;
+  text-decoration: none;
+}
+
+.navbar .fetchCoin input {
+  color: #0c1a2b;
+  font-size: 13px;
+  font-family: "Open Sans";
+}
+
+.navbar .fetchCoin button {
+  font-family: "Open Sans";
+  padding: 5px 10px;
+  margin-left: 2px;
 }
 
 .navbar .navbar-right {
@@ -67,15 +99,17 @@ code {
 }
 
 .navbar .account {
-  background: #111;
-  border: 1px solid #666;
+  margin: 5px;
+  background: #ddd;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 1px #eee;
   padding: 10px;
   border-radius: 4px;
 }
 
 .navbar .account label {
   font-size: 13px;
-  color: #ccc;
+  color: #0c1a2b;
 }
 
 .navbar .account select {
@@ -84,6 +118,11 @@ code {
 
 .navbar .account button {
   font-size: 12px;
+}
+
+.navbar .navigation {
+  background-color: #fff;
+  box-shadow: 2px 2px 6px #ccc;
 }
 
 /* COIN */

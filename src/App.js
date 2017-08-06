@@ -101,16 +101,16 @@ class App extends Component {
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Cherbizon</a>
+            <a href="#" className="nav-link hidden">Catalog</a> 
+            <FetchCoin onFetch={this.onFetch} />
             <div className="navbar-right pure-form account">
               <label>Your Account</label>
               <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
               <button onClick={this.onWithdraw}>Withdraw</button>
             </div>
-            <div className="clearfix"></div>
         </nav>
 
         <main className="container">
-           <FetchCoin onFetch={this.onFetch} />
            <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
         </main>
       </div>

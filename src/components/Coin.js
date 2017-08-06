@@ -73,9 +73,9 @@ class Coin extends Component {
         assignee = <span>Assignee: {this.state.assignee}</span>;
     }
     return (<div className="coin-info">
-      <span className="description">
+      <h1 className="description">
       {this.state.description}
-      </span>
+      </h1>
       <div className="images">
       {imgs }
       </div>

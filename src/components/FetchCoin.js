@@ -20,10 +20,10 @@ class FetchCoin extends Component {
    }
 
    render() {
-      return(<div className="fetchCoin pure-form pure-form-stacked">
-             <label>Coin Id:</label>
-             <input type="text" name="coinId" onChange={this.changeCoinId}/>
-             <button onClick={this.onFetch} className="pure-button pure-button-primary">Fetch</button>
+      return(<div className="fetchCoin pure-form">
+             <label className="nav-link">Find coin by:</label>
+             <input type="text" placeholder="id" name="coinId" onChange={this.changeCoinId}/>
+             <button onClick={this.onFetch} className="pure-button pure-button-primary">Go</button>
              </div>);
    }
 }
