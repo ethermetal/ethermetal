@@ -170,7 +170,7 @@ contract WarehouseReceipt {
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
-       ListingSold(_recordId, listing[_recordId], oldOwner, msg.sender);
+       ListingSold(_recordId, msg.value, oldOwner, msg.sender);
 
        return true;
     }
