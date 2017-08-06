@@ -3,7 +3,7 @@ import WarehouseReceiptContract from '../build/contracts/WarehouseReceipt.json'
 import getWeb3 from './utils/getWeb3'
 import Coin from './components/Coin'
 import FetchCoin from './components/FetchCoin'
-import DataProxy from './DataProxy' 
+import DataProxy from './DataProxy'
 import AccountSelector from './components/AccountSelector';
 
 import './css/oswald.css'
@@ -93,7 +93,7 @@ class App extends Component {
   }
 
   onChangeAccount(account) {
-    this.state.web3.eth.defaultAccount = account; 
+    this.state.web3.eth.defaultAccount = account;
   }
 
   render() {
@@ -101,14 +101,17 @@ class App extends Component {
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Cherbizon</a>
+            <div className="navbar-right pure-form account">
+              <label>Your Account</label>
+              <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
+              <button onClick={this.onWithdraw}>Withdraw</button>
+            </div>
+            <div className="clearfix"></div>
         </nav>
 
         <main className="container">
-           <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
-           <button onClick={this.onWithdraw}>Withdraw from account</button><br/>
            <FetchCoin onFetch={this.onFetch} />
            <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
-           
         </main>
       </div>
     );

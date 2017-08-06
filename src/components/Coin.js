@@ -55,7 +55,7 @@ class Coin extends Component {
     }
     var listable = "";
     if (this.state.listable) {
-        listable = <List onList={this.onList}/>; 
+        listable = <List onList={this.onList}/>;
     }
     var buy = ""
     if (this.state.listingPrice != 0) {
@@ -64,7 +64,7 @@ class Coin extends Component {
     var imgs = [];
     var n =0;
     this.state.imgUrls.forEach((imgSrc) => {
-       imgs.push(<img src={imgSrc} key={"img_" + n} />); 
+       imgs.push(<img src={imgSrc} key={"img_" + n} className="pure-img" />);
        n++;
     });
 
@@ -87,7 +87,7 @@ class Coin extends Component {
       Storage Fee:{(this.state.storageFee/1000000000000000000)} Ether/year
       </span><br/>
       <span className="lateFee">
-      Late Fee:{(this.state.lateFee/1000000000000000000)} Ether/year 
+      Late Fee:{(this.state.lateFee/1000000000000000000)} Ether/year
       </span><br/>
       <span className="feesLastChanged">
       Fees Last Changed:{this.formatTs(this.state.feesLastChanged)} (fee can only be changed once per year)

@@ -16,6 +16,10 @@ code {
   background: #eee;
 }
 
+.clearfix {
+  clear: both;
+}
+
 .container {
   box-sizing: border-box;
   width: 100%;
@@ -37,7 +41,7 @@ code {
 /* NAVBAR */
 
 .navbar {
-  position: fixed;
+  position: static;
   padding: 5px;
   background: #0c1a2b;
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
@@ -62,7 +66,24 @@ code {
   float: right;
 }
 
-.navbar .uport-logo {
-  height: 16px;
-  margin-right: 10px;
+.navbar .account {
+  background: #111;
+  border: 1px solid #666;
+  padding: 10px;
+  border-radius: 4px;
 }
+
+.navbar .account label {
+  font-size: 13px;
+  color: #ccc;
+}
+
+.navbar .account select {
+  font-size: 13px;
+}
+
+.navbar .account button {
+  font-size: 12px;
+}
+
+/* COIN */
