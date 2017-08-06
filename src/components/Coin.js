@@ -5,7 +5,7 @@ import Assign from './Assign';
 class Coin extends Component {
   constructor(props) {
     super(props);
-    this.state = {'coinId':-1,'description':'', 'storagePaidThru':0, 'storageFee':0, 'lateFee':0, 'feesLastChanged':0, 'imgUrls':[], 'listable':true, 'listingPrice':0, 'storageFeeToPay':0, 'numStorageYears':0};
+    this.state = {'coinId':-1,'description':'', 'storagePaidThru':0, 'storageFee':0, 'lateFee':0, 'feesLastChanged':0, 'imgUrls':[], 'listable':true, 'listingPrice':0, 'storageFeeToPay':0, 'numStorageYears':0, 'assignee':'', hidden:true};
     this.onList = this.onList.bind(this);
     this.onAssign = this.onAssign.bind(this);
     this.onBuy = this.onBuy.bind(this);
@@ -50,6 +50,9 @@ class Coin extends Component {
   }
 
   render() {
+    if (this.state.hidden) {
+        return <div/>;
+    }
     var listable = "";
     if (this.state.listable) {
         listable = <List onList={this.onList}/>; 
@@ -64,13 +67,19 @@ class Coin extends Component {
        imgs.push(<img src={imgSrc} key={"img_" + n} />); 
        n++;
     });
+
+    var assignee = "";
+    if(this.state.assignee != "" ) {
+        assignee = <span>Assignee: {this.state.assignee}</span>;
+    }
     return (<div className="coin-info">
       <span className="description">
       {this.state.description}
       </span>
-      <div>
+      <div className="images">
       {imgs }
-      </div><br/>
+      </div>
+      {assignee}
       <span className="storagePaidThru">
       Storage Paid Thru:{this.formatTs(this.state.storagePaidThru)}
       </span><br/>

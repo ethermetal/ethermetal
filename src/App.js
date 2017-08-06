@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import NumismaticCoinContract from '../build/contracts/NumismaticCoin.json'
+import WarehouseReceiptContract from '../build/contracts/WarehouseReceipt.json'
 import getWeb3 from './utils/getWeb3'
 import Coin from './components/Coin'
 import FetchCoin from './components/FetchCoin'
 import DataProxy from './DataProxy' 
+import AccountSelector from './components/AccountSelector';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -17,7 +18,8 @@ class App extends Component {
     this.state = {
       storageValue: 0,
       web3: null,
-      dp: null
+      dp: null,
+      accounts: []
     }
     this.onFetch = this.onFetch.bind(this);
     this.onList = this.onList.bind(this);
@@ -25,9 +27,11 @@ class App extends Component {
     this.onBuy = this.onBuy.bind(this);
     this.onWithdraw = this.onWithdraw.bind(this);
     this.onPayStorage = this.onPayStorage.bind(this);
+    this.onChangeAccount = this.onChangeAccount.bind(this);
   }
   onFetch(id) {
       this.state.dp.getCoin(id).then( (coinInfo) => {
+          coinInfo['hidden'] = false;
           this.refs.coin1.setState(coinInfo);
       });
   }
@@ -73,18 +77,23 @@ class App extends Component {
      */
 
     const contract = require('truffle-contract')
-    const numismaticCoin = contract(NumismaticCoinContract)
-    numismaticCoin.setProvider(this.state.web3.currentProvider)
+    const warehouseReceipt = contract(WarehouseReceiptContract)
+    warehouseReceipt.setProvider(this.state.web3.currentProvider)
 
-    // Declaring this for later so we can chain functions on numisMaticCoin
+    // Declaring this for later so we can chain functions on warehouseReceipt
     var th = this;
     // Get accounts.
     this.state.web3.eth.getAccounts((error, accounts) => {
-      numismaticCoin.web3.eth.defaultAccount = accounts[0];
-      numismaticCoin.deployed().then((instance) => {
+      this.setState({'accounts':accounts});
+      warehouseReceipt.web3.eth.defaultAccount = accounts[0];
+      warehouseReceipt.deployed().then((instance) => {
         th.setState({'dp':new DataProxy(instance)});
       });
     });
+  }
+
+  onChangeAccount(account) {
+    this.state.web3.eth.defaultAccount = account; 
   }
 
   render() {
@@ -95,9 +104,10 @@ class App extends Component {
         </nav>
 
         <main className="container">
+           <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
            <button onClick={this.onWithdraw}>Withdraw from account</button><br/>
            <FetchCoin onFetch={this.onFetch} />
-           <Coin ref="coin1" onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
+           <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
            
         </main>
       </div>

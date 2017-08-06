@@ -4,6 +4,7 @@ class Assign extends Component {
    constructor(props) {
      super(props);
      this.state = {'assignee':''};
+     this.onAssign = this.onAssign.bind(this);
      this.onChangeAssignee = this.onChangeAssignee.bind(this);
    }
 

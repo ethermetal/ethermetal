@@ -16,6 +16,7 @@ var coins = {'0': {'owner': '0x284232',
 class DataProxy {
     constructor(contract) {
        this.contract = contract; 
+       //this.web3 = web3;
     }
     
     // Get a coin by id 
@@ -50,10 +51,10 @@ class DataProxy {
         return(coins.length - 1);
     }
     buy(coinId, price) {
-        return this.contract.buy(coinId, {value:price});
+        return this.contract.buy(parseInt(coinId), {value:price});
     }
     assign(coinId, assignee) {
-        return this.contract.assign(assignee);
+        return this.contract.assign(parseInt(coinId), assignee);
     }
     withdraw() {
         return this.contract.withdraw();
@@ -61,6 +62,12 @@ class DataProxy {
     payStorage(coinId, value) {
         console.log("Paying storage " + value);
         return this.contract.payStorage(coinId, {value:value});
+    }
+    getPriceHistory(coinId, cb) {
+        this.contract.ListingSold({'recordId':coinId}).get(function(error, logs) {
+           console.log(logs);
+        });
+      
     }
 }
 
