@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
-contract NumismaticCoin {
-    enum RecordState { normal, pickedUp, repoed, lostOrStolen }
+contract WarehouseReceipt {
+    enum RecordState { inWarehouse, pickedUp, repoed, lostOrStolen }
     struct Record {
         // Who currently owns the item. This will be 0 if it has been assigned
         address owner;
@@ -9,7 +9,7 @@ contract NumismaticCoin {
         string description;
         // If made non-negotiable it must be assigned to an actual person for pickup
         string assignee;
-        // URLs for images of coin should be on IPFS. Seperated by new line
+        // URLs for images of item should be on IPFS. Seperated by new line
         string imgUrls;
         // The warehouse where the item is stored
         uint warehouse;
@@ -25,7 +25,7 @@ contract NumismaticCoin {
         RecordState state;
     }
 
-    // Notify a numismatic coin has been transferred    
+    // Notify an item  has been transferred    
     event Transfer (
         uint recordId,
         address from,
@@ -33,23 +33,23 @@ contract NumismaticCoin {
     );
    
 
-    // Assign a coin to a name for pickup
+    // Assign a name for pickup
     event Assignment (
         uint recordId,
         string assignee
     );
 
-    // Occurs when a coin has actually been picked up
+    // Occurs when item has actually been picked up
     event Pickup (
         uint recordId
     );
 
-    // Numismatic coin has been repo'ed for lack of payment
+    // Numismatic item has been repo'ed for lack of payment
     event Repo (
         uint recordId
     );
 
-    // New numismatic coin has been created
+    // New item has been added to system
     event Created (
         uint recordId
     );
@@ -67,29 +67,28 @@ contract NumismaticCoin {
     );
     event ListingSold (
         uint recordId,
-        uint price
+        uint price,
+        address from,
+        address to
     );
 
-    mapping(uint => Record) public records; 
-    uint public numRecords;
+    Record[] public records; 
 
     mapping(uint => string) public warehouses;
     uint public numWarehouses;
 
-    // Listings of coins for sale
+    // Listings of items for sale
     mapping(uint => uint) public listing;
 
-    // Balances for coins sold
+    // Balances for items sold
     mapping(address => uint) balances;
 
     // Total balance of storage fees
     uint public storageBalance;
 
-    uint[] public featured;
-
     address public owner;
 
-    // Check if the sender is the owner of the numismatic coin
+    // Check if the sender is the owner of the item
     modifier onlyOwner(uint _recordId) {
        require (records[_recordId].owner == msg.sender);
        _;
@@ -101,8 +100,8 @@ contract NumismaticCoin {
        _;
     } 
 
-    // Initiate the whole numismatic coin contract structure 
-    function NumismaticCoin() {
+    // Initiate the contract
+    function WarehouseReceipt() {
        owner = msg.sender;
     }
 
@@ -124,7 +123,7 @@ contract NumismaticCoin {
     function addWarehouse(string warehouse) {
        var warehouseId = numWarehouses++;
        warehouses[warehouseId] = warehouse;
-    } 
+    }
     
     // Transfer control of the master contract
     function transferMaster(address newOwner) onlyMasterOwner {
@@ -143,38 +142,40 @@ contract NumismaticCoin {
        records[_recordId].lateFee = lateFee;
     }
     
-    // List a coin
+    // List an item
     function list(uint _recordId, uint price) onlyOwner(_recordId) returns (bool success) {
-       require(records[_recordId].state == RecordState.normal); 
+       require(records[_recordId].state == RecordState.inWarehouse); 
+       listing[_recordId] = price;
        Listed(_recordId, price);
 
-       listing[_recordId] = price;
        return true;
     }
 
-    // Un-list a coin
+    // Un-list an item
     function unlist(uint _recordId) onlyOwner(_recordId) returns (bool success) {
        require(listing[_recordId] != 0);
-       Unlisted(_recordId);
        listing[_recordId] = 0;
+       Unlisted(_recordId);
+
        return true;
     }
 
-    // Buy a coin listed 
+    // Buy a listed item
     function buy(uint _recordId) payable returns (bool success) {
        require(listing[_recordId] > 0);
        require(listing[_recordId] == msg.value);
-       require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.normal );
-       ListingSold(_recordId, listing[_recordId]);
+       require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.inWarehouse );
        listing[_recordId] = 0;
        var oldOwner = records[_recordId].owner;
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
+       ListingSold(_recordId, listing[_recordId], oldOwner, msg.sender);
+
        return true;
     }
    
-    // Withdraw balance for coins sold
+    // Withdraw balance for items sold
     function withdraw() {
        require(balances[msg.sender] > 0);
        var withdrawal = balances[msg.sender];
@@ -182,9 +183,9 @@ contract NumismaticCoin {
        msg.sender.transfer(withdrawal);
     } 
 
-    // Change the owner of a numismatic coin
-    function setOwner(uint _recordId, address _newOwner) onlyOwner(_recordId) returns (bool success) {
-       // Don't allow transfer when not listed
+    // Change the owner of an item
+    function transfer(uint _recordId, address _newOwner) onlyOwner(_recordId) returns (bool success) {
+       // Don't allow transfer when listed
        require(listing[_recordId] == 0);
        var oldOwner = records[_recordId].owner;
        records[_recordId].owner = _newOwner;
@@ -194,7 +195,7 @@ contract NumismaticCoin {
     
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
     // The item may be picked up after it is assigned
-    function setAssignee(uint _recordId, string _assignee) onlyOwner(_recordId) {
+    function assign(uint _recordId, string _assignee) onlyOwner(_recordId) {
        require(listing[_recordId] == 0);
        records[_recordId].owner = 0;
        records[_recordId].assignee = _assignee;
@@ -205,14 +206,15 @@ contract NumismaticCoin {
     function pickup(uint _recordId) onlyMasterOwner {
        require(!emptyStr(records[_recordId].assignee));
        require(records[_recordId].owner == 0);
-       records[_recordId].state = RecordState.pickedUp;
        listing[_recordId] = 0;
+
+       records[_recordId].state = RecordState.pickedUp;
     }
 
     // This function can be used to mark items a repo'ed if the storage fees have not been paid
     function repo(uint _recordId) onlyMasterOwner returns(bool success) {
        if((now > (records[_recordId].storagePaidThru + (1 years))) 
-           && records[_recordId].state == RecordState.normal)  {
+           && records[_recordId].state == RecordState.inWarehouse)  {
            listing[_recordId] = 0; 
            records[_recordId].state = RecordState.repoed;
            return true;
@@ -221,30 +223,19 @@ contract NumismaticCoin {
        }
     }
 
-    // Add a new coin to the system
-    function addCoin(address initialOwner, string description, string imgUrls, uint warehouse, uint storagePaidThru, uint storageFee, uint lateFee) onlyMasterOwner returns (uint recordId) {
+    // Add a new item to the system
+    function addItem(address initialOwner, string description, string imgUrls, uint warehouse, uint storagePaidThru, uint storageFee, uint lateFee) onlyMasterOwner returns (uint recordId) {
        // We must include at least one week of storage when issuing 
        require(storagePaidThru > (now + (1 weeks)));
        // Add extra check to avoid initially assigning the owner as 0 
        require(initialOwner != 0);
 
-       // Checks to make sure coin is valid 
+       // Checks to make sure item is valid 
        require((!emptyStr(description)) && (!emptyStr(imgUrls)) && (storageFee > 0) && (lateFee >= 0));
 
-       recordId = numRecords++;
-       
-       Record r = records[recordId];
-       
-       r.owner = initialOwner;
-       r.description = description;
-       r.imgUrls = imgUrls;
-       r.warehouse = warehouse;
-       r.storagePaidThru = storagePaidThru;
-       r.storageFee = storageFee;
-       r.lateFee = lateFee;
-       r.feesLastChanged = now;
+       records.push(Record(initialOwner, description, "", imgUrls, warehouse, now, storagePaidThru, storageFee, lateFee, RecordState.inWarehouse));
+       recordId = records.length - 1;
        Created(recordId);
-       return recordId;
     }
 
     // If the physical item is moved to a new warehouse, this will updated
@@ -252,10 +243,10 @@ contract NumismaticCoin {
        records[_recordId].warehouse = warehouse;
     }
 
-    // Pay the required storage fee for a coin
+    // Pay the required storage fee for an item
     function payStorage(uint _recordId) payable {
        // Don't allow paying additional storage fee if the item is no longer in the warehouse
-       require(records[_recordId].state == RecordState.normal);
+       require(records[_recordId].state == RecordState.inWarehouse);
        if (records[_recordId].storagePaidThru > now) {
           require((msg.value >= records[_recordId].storageFee) && ((msg.value % records[_recordId].storageFee) == 0));
           records[_recordId].storagePaidThru += (msg.value / records[_recordId].storageFee)*(1 years);
@@ -269,7 +260,7 @@ contract NumismaticCoin {
     
     // Determine how much is due
     function getAmountDue(uint _recordId) returns(uint amount) {
-       if (records[_recordId].state != RecordState.normal) { 
+       if (records[_recordId].state != RecordState.inWarehouse) { 
            return 0;
        } else {
            if (records[_recordId].storagePaidThru > now) {
@@ -305,21 +296,6 @@ contract NumismaticCoin {
        LostOrStolen(_recordId);
     }
 
-    function setFeatured(uint[] _featured) onlyMasterOwner {
-       delete featured;
-       for(uint n=0;n<_featured.length;n++) {
-           featured.push(_featured[n]);
-       }
-    }
-
-    function getFeatured() returns(uint[] ids) {
-       uint[] _ids;
-       for(uint n=0;n<featured.length;n++) {
-          _ids.push(featured[n]);
-       }
-       return _ids;
-    }
-    
     function getRecord(uint recordId) returns(address owner, string description, string assignee, string imgUrls, string warehouse, uint feesLastChanged, uint storagePaidThru, uint storageFee, uint lateFee, RecordState state, uint price) {
        owner = records[recordId].owner;
        description = records[recordId].description;
@@ -332,5 +308,5 @@ contract NumismaticCoin {
        lateFee = records[recordId].lateFee;
        state = records[recordId].state;
        price = listing[recordId];
-    } 
+    }
 }
