@@ -148,6 +148,28 @@ code {
   margin-bottom: 0;
 }
 
+.navbar-secondary ul {
+  margin: 0;
+  padding: 0;
+  padding-top: 10px;
+}
+
+.navbar-secondary ul li {
+  list-style-type: none;
+  display: inline-block;
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  margin-left: 20px;
+  padding: 0;
+}
+
+.navbar-secondary ul li a,
+.navbar-secondary ul li a:hover,
+.navbar-secondary ul li a:visited,
+.navbar-secondary ul li a:active {
+  color: #666;
+}
 
 /* NOTIFICATION BANNERS */
 

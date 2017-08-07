@@ -113,7 +113,6 @@ class App extends Component {
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Cherbizon</a>
             <FetchCoin onFetch={this.onFetch} />
-
             <div className="navbar-right pure-form account pure-u-1-3">
               <p className="notification positive hidden">Sample notification. Add class hidden to hide.</p>
               <p className="notification negative hidden">Sample notification. Add class hidden to hide.</p>
@@ -124,9 +123,14 @@ class App extends Component {
                 {buy}
               </div>
             </div>
-
         </nav>
-
+        <nav className="navbar-secondary">
+          <ul>
+            <li><a href="#">Sample coin 123456</a></li>
+            <li><a href="#">Buffalo nickel 98766</a></li>
+            <li><a href="#">Susan B. Anthony 456789</a></li>
+          </ul>
+        </nav>
         <main className="container">
            <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
         </main>
