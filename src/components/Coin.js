@@ -126,6 +126,7 @@ class Coin extends Component {
 
           <fieldset>
             <label>Pay for storage:</label>
+            <p className="validation-error">Sample form validation styling. Add className hidden to hide.</p>
             <input type="text" placeholder="Number of years" onChange={this.onChangeNumYears}/> 
             <button onClick={this.onPayStorage} className="pure-button pure-button-primary">Pay for storage</button>
           </fieldset>

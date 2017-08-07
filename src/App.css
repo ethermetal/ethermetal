@@ -148,6 +148,15 @@ code {
   margin-bottom: 0;
 }
 
+/* ERRORS */
+
+.validation-error {
+  display: block;
+  color: #c00;
+  font-size: 11px;
+  margin: 10px 0 5px 0px;
+}
+
 
 /* COIN */
 
