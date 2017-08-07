@@ -112,12 +112,11 @@ class App extends Component {
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Cherbizon</a>
-            <a href="#" className="nav-link hidden">Catalog</a> 
             <FetchCoin onFetch={this.onFetch} />
 
             <div className="navbar-right pure-form account pure-u-1-3">
               <p className="notification positive hidden">Sample notification. Add class hidden to hide.</p>
-              <p className="notification negative">Sample notification. Add class hidden to hide.</p>
+              <p className="notification negative hidden">Sample notification. Add class hidden to hide.</p>
               <label>Your Account</label>
               <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
               <button onClick={this.onWithdraw}>Withdraw</button>
