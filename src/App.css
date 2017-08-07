@@ -113,17 +113,18 @@ code {
 }
 
 .navbar .account {
-  margin: 5px;
+  position: fixed;
+  top: 0;
+  right: 0;
   background: #ddd;
-  border: 1px solid #ccc;
-  box-shadow: 2px 2px 1px #eee;
+  box-shadow: 2px 2px 3px #666;
   padding: 10px;
-  border-radius: 4px;
+  background-color: #0c1a2b;
 }
 
 .navbar .account label {
   font-size: 13px;
-  color: #0c1a2b;
+  color: #fff;
 }
 
 .navbar .account select {
