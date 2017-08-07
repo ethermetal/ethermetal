@@ -17,10 +17,11 @@ class Assign extends Component {
    }
 
    render() {
-     return (<div>
-               <label>Assignee</label><input onChange={this.onChangeAssignee} type="text"/> 
-               <button onClick={this.onAssign}>Assign</button>
-               </div>
+     return (<fieldset>
+               <label>Assignee:</label>
+               <input placeholder="Name" onChange={this.onChangeAssignee} type="text"/> 
+               <button onClick={this.onAssign} className="pure-button pure-button-primary">Assign</button>
+               </fieldset>
             );
    }
 }

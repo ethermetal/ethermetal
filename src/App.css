@@ -126,3 +126,42 @@ code {
 }
 
 /* COIN */
+.coin-info .images img {
+  width: 95%;
+  margin-top: 20px;
+}
+
+.coin-info .images img:first-child {
+  margin-top: 0;
+}
+
+.coin-info__details__title {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.coin-info__details .value {
+  font-size: 13px;
+}
+
+.coin-info__details fieldset {
+  border: 1px solid #ccc;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 10px;
+}
+
+.coin-info__details label {
+  font-family: "Oswald";
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.coin-info__details input {
+  margin-left: 0;
+}
+
+.coin-info__details button {
+  font-size: 13px;
+}

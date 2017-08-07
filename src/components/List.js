@@ -15,7 +15,9 @@ class List extends Component {
   }
   render() {
     return (<div>
-            <label>Price:</label><input type="text" onChange={this.onChangePrice} name="price"/> (in Wei) <button onClick={this.onList}>List</button>
+            <label>List this Coin:</label>
+            <input type="text" placeholder="In wei" onChange={this.onChangePrice} name="price"/>
+            <button onClick={this.onList} className="pure-button pure-button-primary">List Now</button>
             </div>);
   }
 }
