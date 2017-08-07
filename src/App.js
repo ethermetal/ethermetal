@@ -131,9 +131,22 @@ class App extends Component {
             <li><a href="#">Susan B. Anthony 456789</a></li>
           </ul>
         </nav>
+        
         <main className="container">
            <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
         </main>
+
+        <footer>
+          <ul>
+            <li>
+              <a href="#" className="pure-menu-heading pure-menu-link">About us</a>
+            </li>
+            <li>
+              <a href="#" className="pure-menu-heading pure-menu-link">Team</a>
+            </li>
+          </ul>
+        </footer>
+
       </div>
     );
   }
