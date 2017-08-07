@@ -86,7 +86,7 @@ class Coin extends Component {
       <div className="pure-g">
 
         <div className="images pure-u-2-3">
-        {imgs}
+          {imgs}
         </div>
 
         <div className="coin-info__details pure-u-1-3 pure-form pure-form-stacked">

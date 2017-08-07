@@ -116,6 +116,8 @@ class App extends Component {
             <FetchCoin onFetch={this.onFetch} />
 
             <div className="navbar-right pure-form account pure-u-1-3">
+              <p className="notification positive hidden">Sample notification. Add class hidden to hide.</p>
+              <p className="notification negative">Sample notification. Add class hidden to hide.</p>
               <label>Your Account</label>
               <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
               <button onClick={this.onWithdraw}>Withdraw</button>

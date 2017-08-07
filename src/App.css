@@ -148,7 +148,28 @@ code {
   margin-bottom: 0;
 }
 
-/* ERRORS */
+
+/* NOTIFICATION BANNERS */
+
+.notification {
+  margin: 0px 0 20px 0;
+  padding: 5px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.notification.positive {
+  background-color: #8ab0de; 
+  border: 1px solid #195cae;
+}
+
+.notification.negative {
+  background-color: #f68383;
+  border: 1px solid #c00;
+}
+
+
+/* VALIDATION ERRORS */
 
 .validation-error {
   display: block;
