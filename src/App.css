@@ -27,6 +27,10 @@ code {
   padding: 20px;
 }
 
+.pure-button {
+  font-family: "Open Sans";
+}
+
 .pure-button-primary {
   background-color: #0c1a2b;
 }
@@ -135,10 +139,15 @@ code {
   font-size: 12px;
 }
 
-.navbar .navigation {
-  background-color: #fff;
-  box-shadow: 2px 2px 6px #ccc;
+.navbar .account .account__buy-button {
+
 }
+
+.navbar .account .pure-button-purchase {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
 
 /* COIN */
 .coin-info .images img {

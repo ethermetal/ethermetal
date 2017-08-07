@@ -19,12 +19,14 @@ class App extends Component {
       storageValue: 0,
       web3: null,
       dp: null,
-      accounts: []
+      accounts: [],
+      listingPrice: null
     }
     this.onFetch = this.onFetch.bind(this);
     this.onList = this.onList.bind(this);
     this.onAssign = this.onAssign.bind(this);
     this.onBuy = this.onBuy.bind(this);
+    this._onBuy = this._onBuy.bind(this);
     this.onWithdraw = this.onWithdraw.bind(this);
     this.onPayStorage = this.onPayStorage.bind(this);
     this.onChangeAccount = this.onChangeAccount.bind(this);
@@ -33,6 +35,8 @@ class App extends Component {
       this.state.dp.getCoin(id).then( (coinInfo) => {
           coinInfo['hidden'] = false;
           this.refs.coin1.setState(coinInfo);
+          this.setState({'listingPrice': coinInfo['listingPrice'] });
+          this.setState({'coinId': coinInfo['coinId'] });
       });
   }
   onAssign(coinId, assignee) {
@@ -61,6 +65,9 @@ class App extends Component {
   }
   onBuy(coinId, price) {
      this.state.dp.buy(coinId, price)
+  }
+  _onBuy(event) {
+     this.onBuy(this.state.coinId, this.state.listingPrice);
   }
   onWithdraw() {
      this.state.dp.withdraw();
@@ -97,17 +104,26 @@ class App extends Component {
   }
 
   render() {
+    var buy = '';
+    if (this.state.listingPrice) {
+      buy = <button className="pure-button pure-button-purchase" onClick={this._onBuy}>Buy for {this.state.listingPrice} Wei</button>;
+    }
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Cherbizon</a>
             <a href="#" className="nav-link hidden">Catalog</a> 
             <FetchCoin onFetch={this.onFetch} />
+
             <div className="navbar-right pure-form account pure-u-1-3">
               <label>Your Account</label>
               <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
               <button onClick={this.onWithdraw}>Withdraw</button>
+              <div className="account__buy-button">
+                {buy}
+              </div>
             </div>
+
         </nav>
 
         <main className="container">
