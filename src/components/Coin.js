@@ -120,8 +120,6 @@ class Coin extends Component {
 
           {buy}
 
-          <Assign onAssign={this.onAssign}/>
-
           <fieldset>
             {listable}
           </fieldset>
@@ -131,6 +129,8 @@ class Coin extends Component {
             <input type="text" placeholder="Number of years" onChange={this.onChangeNumYears}/> 
             <button onClick={this.onPayStorage} className="pure-button pure-button-primary">Pay for storage</button>
           </fieldset>
+
+          <Assign onAssign={this.onAssign}/>
 
           </div>
       </div>
