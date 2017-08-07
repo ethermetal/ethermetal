@@ -6,6 +6,12 @@ body,
   background-color: #efefef;
 }
 
+body {
+  position: relative;
+  padding-bottom: 60px;
+}
+
+
 h1, h2, h3 {
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
 }
@@ -170,6 +176,44 @@ code {
 .navbar-secondary ul li a:active {
   color: #666;
 }
+
+
+/* NAVBAR (FOOTER) */
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 30px;
+  background-color: #fff;
+}
+
+footer ul {
+  margin: 0;
+  padding: 0;
+  padding-top: 5px;
+}
+
+footer ul li {
+  list-style-type: none;
+  display: inline-block;
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  margin-left: 20px;
+  padding: 0;
+}
+
+footer ul li a,
+footer ul li a:hover,
+footer ul li a:visited,
+footer ul li a:active {
+  color: #666;
+}
+
+
+
 
 /* NOTIFICATION BANNERS */
 
