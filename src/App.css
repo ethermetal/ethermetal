@@ -35,6 +35,20 @@ code {
   background-color: #233e5e;
 }
 
+.pure-button-purchase,
+.pure-button-purchase:hover {
+  background-color: #25CB68;
+  color: #fff;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 20px 0;
+}
+
+.pure-form input[type="text"]:focus {
+  border-color: #0c1a2b;
+}
+
 .pure-form input[type="text"]:focus {
   border-color: #0c1a2b;
 }
@@ -164,4 +178,11 @@ code {
 
 .coin-info__details button {
   font-size: 13px;
+}
+
+.coin-details__explainer {
+  color: #666;
+  font-style: italic;
+  display: block;
+  font-size: 12px;
 }

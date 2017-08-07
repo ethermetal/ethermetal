@@ -59,7 +59,7 @@ class Coin extends Component {
     }
     var buy = ""
     if (this.state.listingPrice != 0) {
-        buy = <button onClick={this.onBuy}>Buy for {this.state.listingPrice} Wei</button>;
+        buy = <button className="pure-button pure-button-purchase" onClick={this.onBuy}>Buy for {this.state.listingPrice} Wei</button>;
     }
     var imgs = [];
     var n =0;
@@ -80,11 +80,11 @@ class Coin extends Component {
       <div className="pure-g">
 
         <div className="images pure-u-2-3">
-        {imgs }
+        {imgs}
         </div>
 
         <div className="coin-info__details pure-u-1-3 pure-form pure-form-stacked">
-          <h2 className="coin-info__details__title">Details</h2>
+          <h2 className="coin-info__details__title">Coin Details</h2>
           
           <div className="assignedTo">
           <label>Assigned to:</label> 
@@ -108,8 +108,11 @@ class Coin extends Component {
 
           <div className="feesLastChanged">
           <label>Fees Last Changed:</label>
-          <span className="value">{this.formatTs(this.state.feesLastChanged)} <br />(fee can only be changed once per year)</span>
+          <span className="value">{this.formatTs(this.state.feesLastChanged)}</span>
+          <span className="coin-details__explainer">* fee can only be changed once per year</span>
           </div>
+
+          {buy}
 
           <Assign onAssign={this.onAssign}/>
 
@@ -117,12 +120,10 @@ class Coin extends Component {
             {listable}
           </fieldset>
 
-          {buy}
-
           <fieldset>
             <label>Pay for storage:</label>
             <input type="text" placeholder="Number of years" onChange={this.onChangeNumYears}/> 
-            <button onClick={this.onPayStorage} className="pure-button pure-button-primary">Pay for storage</button><br/><br/>
+            <button onClick={this.onPayStorage} className="pure-button pure-button-primary">Pay for storage</button>
           </fieldset>
 
           </div>
