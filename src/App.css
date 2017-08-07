@@ -183,7 +183,7 @@ code {
 
 .coin-info__details label {
   font-family: "Oswald";
-  display: inline-block;
+  display: block;
   margin-right: 5px;
 }
 
@@ -200,4 +200,9 @@ code {
   font-style: italic;
   display: block;
   font-size: 12px;
+}
+
+.coin-info .coin-info__details .list-coin__input,
+.coin-info .coin-info__details .list-coin__select {
+  display: inline-block;
 }

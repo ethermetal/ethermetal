@@ -16,7 +16,11 @@ class List extends Component {
   render() {
     return (<div>
             <label>List this Coin:</label>
-            <input type="text" placeholder="In wei" onChange={this.onChangePrice} name="price"/>
+            <input className="list-coin__input" type="text" placeholder="In wei" onChange={this.onChangePrice} name="price"/>
+            <select className="list-coin__select">
+              <option>Ether</option>
+              <option>Wei</option>
+            </select>
             <button onClick={this.onList} className="pure-button pure-button-primary">List Now</button>
             </div>);
   }
