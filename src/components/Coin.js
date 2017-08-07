@@ -68,13 +68,19 @@ class Coin extends Component {
        n++;
     });
 
+    var assigneeLabel = "";
     var assignee = "";
-    if(this.state.assignee != "" ) {
-        assignee = <span>Assignee: {this.state.assignee}</span>;
+    if (this.state.assignee != "" ) {
+        assigneeLabel = "Assignee:";
+        assignee = this.state.assignee;
+    } else {
+      assigneeLabel = "Owner:";
+      assignee = this.state.owner;
     }
+
     return (<div className="coin-info">
       <h1 className="description">
-      {this.state.description}
+        {this.state.description}
       </h1>
 
       <div className="pure-g">
@@ -87,7 +93,7 @@ class Coin extends Component {
           <h2 className="coin-info__details__title">Coin Details</h2>
           
           <div className="assignedTo">
-          <label>Assigned to:</label> 
+          <label>{assigneeLabel}</label> 
           <span className="value">{assignee}</span>
           </div>
 
