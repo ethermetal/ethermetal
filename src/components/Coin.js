@@ -79,7 +79,7 @@ class Coin extends Component {
     }
 
     return (<div className="coin-info">
-      <h1 className="description">
+      <h1 className="description pure-u-2-3">
         {this.state.description}
       </h1>
 
@@ -91,7 +91,7 @@ class Coin extends Component {
 
         <div className="coin-info__details pure-u-1-3 pure-form pure-form-stacked">
           <h2 className="coin-info__details__title">Coin Details</h2>
-          
+
           <div className="assignedTo">
           <label>{assigneeLabel}</label> 
           <span className="value">{assignee}</span>
