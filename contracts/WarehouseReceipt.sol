@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
 
-contract WarehouseReceipt is Asset {
+contract WarehouseReceipt {
     enum RecordState { inWarehouse, pickedUp, repoed, lostOrStolen }
     struct Record {
         // Who currently owns the item. This will be 0 if it has been assigned
