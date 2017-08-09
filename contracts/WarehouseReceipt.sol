@@ -1,6 +1,5 @@
 pragma solidity ^0.4.13;
 
-import "./Asset.sol";
 
 contract WarehouseReceipt is Asset {
     enum RecordState { inWarehouse, pickedUp, repoed, lostOrStolen }
@@ -26,14 +25,6 @@ contract WarehouseReceipt is Asset {
         // State of the item
         RecordState state;
     }
-
-    // Notify an item  has been transferred    
-    event Transfer (
-        uint recordId,
-        address from,
-        address to
-    );
-   
 
     // Assign a name for pickup
     event Assignment (
@@ -202,21 +193,6 @@ contract WarehouseReceipt is Asset {
             require (i==0 || result > 0 || c > 48);
             result = result * 10 + (c - 48);
         }
-    }
-    
-    // Added for compatibility with asset interface
-    function setOwner(string _recordId, address _newOwner) returns (bool success) {
-        return transfer(stringToUint(_recordId), _newOwner);
-    } 
-
-    // Change the owner of an item
-    function transfer(uint _recordId, address _newOwner) onlyOwner(_recordId) returns (bool success) {
-       // Don't allow transfer when listed
-       require(listing[_recordId] == 0);
-       var oldOwner = records[_recordId].owner;
-       records[_recordId].owner = _newOwner;
-       Transfer(_recordId, oldOwner, _newOwner);
-       return true;
     }
     
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
