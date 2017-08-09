@@ -11,7 +11,7 @@ class AccountSelector extends Component {
     render() {
        var accounts = [];
        for(var n=0;n<this.props.accounts.length;n++) {
-           accounts.push(<option value={this.props.accounts[n]}>{this.props.accounts[n]}</option>);
+           accounts.push(<option key={"account_" + n} value={this.props.accounts[n]}>{this.props.accounts[n]}</option>);
        }
        return (<div className="pure-form pure-form-stacked">
        <select onChange={this.onChangeAccount} key="accountSelect">{accounts}</select>

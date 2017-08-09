@@ -170,7 +170,7 @@ contract WarehouseReceipt {
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
-       ListingSold(_recordId, listing[_recordId], oldOwner, msg.sender);
+       ListingSold(_recordId, msg.value, oldOwner, msg.sender);
 
        return true;
     }
@@ -209,6 +209,7 @@ contract WarehouseReceipt {
        listing[_recordId] = 0;
 
        records[_recordId].state = RecordState.pickedUp;
+       Pickup(_recordId);
     }
 
     // This function can be used to mark items a repo'ed if the storage fees have not been paid
@@ -217,6 +218,7 @@ contract WarehouseReceipt {
            && records[_recordId].state == RecordState.inWarehouse)  {
            listing[_recordId] = 0; 
            records[_recordId].state = RecordState.repoed;
+           Repo(_recordId);
            return true;
        } else {
            return false;

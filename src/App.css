@@ -139,6 +139,7 @@ code {
 
 .navbar .account select {
   font-size: 13px;
+  height: 3em;
 }
 
 .navbar .account button {
@@ -185,8 +186,12 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 40px;
+  height: 80px;
   background-color: #fff;
+}
+footer p {
+  font-size:13px;
+  color: #333;
 }
 
 footer ul {
@@ -294,12 +299,21 @@ footer ul li a:active {
 
 .coin-details__explainer {
   color: #666;
-  font-style: italic;
   display: block;
   font-size: 12px;
+}
+.years__details {
+  color: #666;
+  font-style: italic;
+  display: inline-block;
+  font-size: 13px;
 }
 
 .coin-info .coin-info__details .list-coin__input,
 .coin-info .coin-info__details .list-coin__select {
+  display: inline-block;
+}
+
+.coin-info .coin-info__details .list-storage__input {
   display: inline-block;
 }
