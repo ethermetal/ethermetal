@@ -5,6 +5,7 @@ import Coin from './components/Coin'
 import FetchCoin from './components/FetchCoin'
 import DataProxy from './DataProxy'
 import AccountSelector from './components/AccountSelector';
+import Gitter from 'react-sidecar';
 
 import './css/oswald.css'
 import './css/open-sans.css'
