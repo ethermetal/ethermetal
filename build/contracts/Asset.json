@@ -1,0 +1,49 @@
+{
+  "contract_name": "Asset",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_recordId",
+          "type": "string"
+        },
+        {
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "setOwner",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_recordId",
+          "type": "string"
+        }
+      ],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "ownerAddress",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1502311154067
+}

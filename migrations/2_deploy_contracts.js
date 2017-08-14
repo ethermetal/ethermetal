@@ -1,5 +1,4 @@
 var WarehouseReceipt = artifacts.require("./WarehouseReceipt.sol");
-
 module.exports = function(deployer) {
   deployer.deploy(WarehouseReceipt).then(function() {
      WarehouseReceipt.deployed().then( (instance)=>{

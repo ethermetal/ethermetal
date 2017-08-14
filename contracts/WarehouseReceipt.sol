@@ -1,5 +1,9 @@
 pragma solidity ^0.4.13;
 
+contract NotifyContract {
+    function saleNotify(uint recordId, uint price, address from, address to) returns (bool success);
+}
+
 contract WarehouseReceipt {
     enum RecordState { inWarehouse, pickedUp, repoed, lostOrStolen }
     struct Record {
@@ -24,14 +28,6 @@ contract WarehouseReceipt {
         // State of the item
         RecordState state;
     }
-
-    // Notify an item  has been transferred    
-    event Transfer (
-        uint recordId,
-        address from,
-        address to
-    );
-   
 
     // Assign a name for pickup
     event Assignment (
@@ -71,6 +67,19 @@ contract WarehouseReceipt {
         address from,
         address to
     );
+    event Transfer (
+        uint recordId,
+        address from,
+        address to
+    );
+    event StoragePaid (
+        uint recordId,
+        uint paidThru
+    );
+    event Withdraw (
+        address user,
+        uint amount
+    );
 
     Record[] public records; 
 
@@ -81,12 +90,21 @@ contract WarehouseReceipt {
     mapping(uint => uint) public listing;
 
     // Balances for items sold
-    mapping(address => uint) balances;
+    mapping(address => uint) public balances;
+   
+    // These addresses are allowed to receive transfers of contracts from any address or send to contracts of any address
+    mapping(address => bool) public authorizedTransferAgents;
+
+    // These address contracts are allowed to own coins.
+    mapping(address => bool) public authorizedBuyContracts;
 
     // Total balance of storage fees
     uint public storageBalance;
 
-    address public owner;
+    address ownerAddress;
+  
+    // Callback address for adding affiliate contract 
+    address notifyAddress;
 
     // Check if the sender is the owner of the item
     modifier onlyOwner(uint _recordId) {
@@ -96,13 +114,31 @@ contract WarehouseReceipt {
 
     // Check if the master owner of the contract
     modifier onlyMasterOwner {
-       require (msg.sender == owner); 
+       require (msg.sender == ownerAddress); 
        _;
+    }
+     
+    // Authorized transfer agents can transfer ownership without selling. This can be used by other contracts. 
+    function transfer(uint _recordId, address to) onlyOwner(_recordId) {
+       require(authorizedTransferAgents[msg.sender] || authorizedTransferAgents[to]);
+       records[_recordId].owner = to;
+       Transfer(_recordId, msg.sender, to);
+    }
+
+    function changeTransferAuthorization(address agent, bool authorized) onlyMasterOwner {
+       authorizedTransferAgents[agent] = authorized;
+    } 
+    function changeContractBuyAuthorization(address authorizedContract, bool authorized) onlyMasterOwner {
+       authorizedBuyContracts[authorizedContract] = authorized;
+    }
+
+    function setNotifyAddress(address _notifyAddress) onlyMasterOwner {
+       notifyAddress = _notifyAddress;
     } 
 
     // Initiate the contract
     function WarehouseReceipt() {
-       owner = msg.sender;
+       ownerAddress = msg.sender;
     }
 
     function emptyStr(string str) returns (bool isEmpty) {
@@ -116,7 +152,7 @@ contract WarehouseReceipt {
 
     // Get the master owner of the contract
     function masterOwner() returns (address ownerAddress) {
-       return owner;
+       return ownerAddress;
     }
 
     // Add a new warehouse to the system
@@ -127,7 +163,7 @@ contract WarehouseReceipt {
     
     // Transfer control of the master contract
     function transferMaster(address newOwner) onlyMasterOwner {
-       owner = newOwner;
+       ownerAddress = newOwner;
     }
 
     // The storage fee may be raised up to 4% per year.
@@ -159,9 +195,16 @@ contract WarehouseReceipt {
 
        return true;
     }
+    function isContract(address addr) returns (bool) {
+       uint size;
+       assembly { size := extcodesize(addr) }
+       return size > 0;
+    }
 
     // Buy a listed item
     function buy(uint _recordId) payable returns (bool success) {
+       // Only authorized contracts are allowed to buy
+       require(!isContract(msg.sender) || authorizedBuyContracts[msg.sender]);
        require(listing[_recordId] > 0);
        require(listing[_recordId] == msg.value);
        require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.inWarehouse );
@@ -170,6 +213,10 @@ contract WarehouseReceipt {
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
+       if (notifyAddress != 0x0) {
+           NotifyContract notifyContract = NotifyContract(notifyAddress);
+           require(notifyContract.saleNotify(_recordId, msg.value, oldOwner, msg.sender));
+       }
        ListingSold(_recordId, msg.value, oldOwner, msg.sender);
 
        return true;
@@ -181,18 +228,9 @@ contract WarehouseReceipt {
        var withdrawal = balances[msg.sender];
        balances[msg.sender] = 0;
        msg.sender.transfer(withdrawal);
+       Withdraw(msg.sender, withdrawal);
     } 
 
-    // Change the owner of an item
-    function transfer(uint _recordId, address _newOwner) onlyOwner(_recordId) returns (bool success) {
-       // Don't allow transfer when listed
-       require(listing[_recordId] == 0);
-       var oldOwner = records[_recordId].owner;
-       records[_recordId].owner = _newOwner;
-       Transfer(_recordId, oldOwner, _newOwner);
-       return true;
-    }
-    
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
     // The item may be picked up after it is assigned
     function assign(uint _recordId, string _assignee) onlyOwner(_recordId) {
@@ -209,6 +247,7 @@ contract WarehouseReceipt {
        listing[_recordId] = 0;
 
        records[_recordId].state = RecordState.pickedUp;
+       Pickup(_recordId);
     }
 
     // This function can be used to mark items a repo'ed if the storage fees have not been paid
@@ -217,6 +256,7 @@ contract WarehouseReceipt {
            && records[_recordId].state == RecordState.inWarehouse)  {
            listing[_recordId] = 0; 
            records[_recordId].state = RecordState.repoed;
+           Repo(_recordId);
            return true;
        } else {
            return false;
@@ -256,6 +296,7 @@ contract WarehouseReceipt {
           records[_recordId].storagePaidThru += ((msg.value - records[_recordId].lateFee) / records[_recordId].storageFee)*(1 years);
        }
        storageBalance += msg.value;
+       StoragePaid(_recordId, records[_recordId].storagePaidThru);
     }
     
     // Determine how much is due
@@ -296,17 +337,17 @@ contract WarehouseReceipt {
        LostOrStolen(_recordId);
     }
 
-    function getRecord(uint recordId) returns(address owner, string description, string assignee, string imgUrls, string warehouse, uint feesLastChanged, uint storagePaidThru, uint storageFee, uint lateFee, RecordState state, uint price) {
-       owner = records[recordId].owner;
-       description = records[recordId].description;
-       assignee = records[recordId].assignee;
-       imgUrls = records[recordId].imgUrls;
-       warehouse = warehouses[records[recordId].warehouse];
-       feesLastChanged = records[recordId].feesLastChanged;
-       storagePaidThru = records[recordId].storagePaidThru;
-       storageFee = records[recordId].storageFee;
-       lateFee = records[recordId].lateFee;
-       state = records[recordId].state;
-       price = listing[recordId];
+    function getRecord(uint recordId) returns(address _owner, string _description, string _assignee, string _imgUrls, string _warehouse, uint _feesLastChanged, uint _storagePaidThru, uint _storageFee, uint _lateFee, RecordState _state, uint _price) {
+       _owner = records[recordId].owner;
+       _description = records[recordId].description;
+       _assignee = records[recordId].assignee;
+       _imgUrls = records[recordId].imgUrls;
+       _warehouse = warehouses[records[recordId].warehouse];
+       _feesLastChanged = records[recordId].feesLastChanged;
+       _storagePaidThru = records[recordId].storagePaidThru;
+       _storageFee = records[recordId].storageFee;
+       _lateFee = records[recordId].lateFee;
+       _state = records[recordId].state;
+       _price = listing[recordId];
     }
 }

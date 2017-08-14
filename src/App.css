@@ -3,7 +3,14 @@
 body,
 .pure-g [class*=pure-u] {
   font-family: 'Open Sans', sans-serif;
+  background-color: #efefef;
 }
+
+body {
+  position: relative;
+  padding-bottom: 60px;
+}
+
 
 h1, h2, h3 {
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
@@ -16,10 +23,19 @@ code {
   background: #eee;
 }
 
+.clearfix {
+  clear: both;
+}
+
 .container {
   box-sizing: border-box;
   width: 100%;
-  padding: 45px 20px;
+  padding: 20px;
+  padding-top: 50px;
+}
+
+.pure-button {
+  font-family: "Open Sans";
 }
 
 .pure-button-primary {
@@ -30,6 +46,20 @@ code {
   background-color: #233e5e;
 }
 
+.pure-button-purchase,
+.pure-button-purchase:hover {
+  background-color: #25CB68;
+  color: #fff;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 20px 0;
+}
+
+.pure-form input[type="text"]:focus {
+  border-color: #0c1a2b;
+}
+
 .pure-form input[type="text"]:focus {
   border-color: #0c1a2b;
 }
@@ -37,32 +67,270 @@ code {
 /* NAVBAR */
 
 .navbar {
-  position: fixed;
-  padding: 5px;
-  background: #0c1a2b;
+  position: static;
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  padding: 0;
+  background-color: #fff;
+  box-shadow: 2px 2px 0 #ddd;
 }
 
 .navbar a {
-  color: #fff;
-}
-
-.navbar a:active,
-.navbar a:focus,
-.navbar a:hover {
-  background: #233e5e;
+  color: #0c1a2b;
 }
 
 .navbar .pure-menu-heading {
   font-weight: bold;
   text-transform: none;
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+.navbar .pure-menu-heading:hover {
+  background-color: #fff;
+  text-decoration: none;
+}
+
+.navbar .nav-link {
+  font-family: "Open Sans";
+  font-size: 13px;
+  text-decoration: underline;
+  color: #0c1a2b;
+}
+
+.navbar .fetchCoin {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.navbar .fetchCoin label {
+  margin-right: 5px;
+  text-decoration: none;
+}
+
+.navbar .fetchCoin input {
+  color: #0c1a2b;
+  font-size: 13px;
+  font-family: "Open Sans";
+}
+
+.navbar .fetchCoin button {
+  font-family: "Open Sans";
+  padding: 5px 10px;
+  margin-left: 2px;
 }
 
 .navbar .navbar-right {
   float: right;
 }
 
-.navbar .uport-logo {
-  height: 16px;
-  margin-right: 10px;
+.navbar .account {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #ddd;
+  box-shadow: 2px 2px 3px #666;
+  padding: 10px;
+  background-color: #0c1a2b;
+}
+
+.navbar .account label {
+  font-size: 13px;
+  color: #fff;
+}
+
+.navbar .account select {
+  font-size: 13px;
+  height: 3em;
+}
+
+.navbar .account button {
+  font-size: 12px;
+}
+
+.navbar .account .account__buy-button {
+
+}
+
+.navbar .account .pure-button-purchase {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.navbar-secondary ul {
+  margin: 0;
+  padding: 0;
+  padding-top: 10px;
+}
+
+.navbar-secondary ul li {
+  list-style-type: none;
+  display: inline-block;
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  margin-left: 20px;
+  padding: 0;
+}
+
+.navbar-secondary ul li a,
+.navbar-secondary ul li a:hover,
+.navbar-secondary ul li a:visited,
+.navbar-secondary ul li a:active {
+  color: #666;
+}
+
+
+/* NAVBAR (FOOTER) */
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: #fff;
+}
+footer p {
+  font-size:13px;
+  color: #333;
+}
+
+footer ul {
+  margin: 0;
+  padding: 0;
+  padding-top: 5px;
+}
+
+footer ul li {
+  list-style-type: none;
+  display: inline-block;
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  margin-left: 20px;
+  padding: 0;
+}
+
+footer ul li a,
+footer ul li a:hover,
+footer ul li a:visited,
+footer ul li a:active {
+  color: #666;
+}
+
+
+
+
+/* NOTIFICATION BANNERS */
+
+.notification {
+  margin: 0px 0 20px 0;
+  padding: 5px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.notification.positive {
+  background-color: #8ab0de; 
+  border: 1px solid #195cae;
+}
+
+.notification.negative {
+  background-color: #f68383;
+  border: 1px solid #c00;
+}
+
+
+/* VALIDATION ERRORS */
+
+.validation-error {
+  display: block;
+  color: #c00;
+  font-size: 11px;
+  margin: 10px 0 5px 0px;
+}
+
+
+/* COIN */
+
+.coin-info h1 {
+  font-size: 2.5em;
+}
+
+.coin-info .images img {
+  width: 95%;
+  margin-top: 20px;
+}
+
+.coin-info .images img:first-child {
+  margin-top: 0;
+}
+
+.coin-info__details__title {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.coin-info__details .value {
+  font-size: 13px;
+}
+
+.coin-info__details fieldset {
+  border: 1px solid #ccc;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 10px;
+}
+
+.coin-info__details label {
+  font-family: "Oswald";
+  display: block;
+  margin-right: 5px;
+}
+
+.coin-info__details input {
+  margin-left: 0;
+}
+
+.coin-info__details button {
+  font-size: 13px;
+  display: block;
+}
+
+.coin-details__explainer {
+  color: #666;
+  display: block;
+  font-size: 12px;
+}
+.years__details {
+  color: #666;
+  font-style: italic;
+  display: inline-block;
+  font-size: 13px;
+}
+
+.coin-info .coin-info__details .list-coin__input,
+.coin-info .coin-info__details .list-coin__select {
+  display: inline-block;
+}
+
+.coin-info .coin-info__details .list-storage__input {
+  display: inline-block;
+}
+.fineprint {
+  color:white;
+  font-size:8pt;
+  font-style:italic;
+  white-space:normal;
+}
+.fineprint2 {
+  color:black;
+  font-size:8pt;
+  font-style:italic;
+  white-space:normal;
+}
+.balanceText {
+  color:#666;
+  font-size: 12px;
 }

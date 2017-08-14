@@ -5,8 +5,8 @@ class FetchCoin extends Component {
      super(props);
      this.state = {
         'coinId': ''
-     }; 
-     
+     };
+
      this.changeCoinId = this.changeCoinId.bind(this);
      this.onFetch = this.onFetch.bind(this);
    }
@@ -16,13 +16,14 @@ class FetchCoin extends Component {
    }
 
    onFetch(event) {
-      this.props.onFetch(this.state.coinId); 
+      this.props.onFetch(this.state.coinId);
    }
 
    render() {
-      return(<div className="fetchCoin">
-             <label>Coin Id:</label><input type="text" name="coinId" onChange={this.changeCoinId}/>
-             <button onClick={this.onFetch}>Fetch</button>
+      return(<div className="fetchCoin pure-form">
+             <label className="nav-link">Find item by:</label>
+             <input type="text" placeholder="id" name="coinId" onChange={this.changeCoinId}/>
+             <button onClick={this.onFetch} className="pure-button pure-button-primary">Go</button>
              </div>);
    }
 }
