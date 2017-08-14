@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import List from './List';
 import Assign from './Assign';
 import web3 from 'web3';
+import Fineprint from './Fineprint';
+import formatTs from '../TimeFormat';
 
 class Coin extends Component {
   constructor(props) {
     super(props);
-    this.state = {'coinId':-1,'description':'', 'storagePaidThru':0, 'storageFee':0, 'lateFee':0, 'feesLastChanged':0, 'imgUrls':[], 'listable':true, 'listingPrice':0, 'storageFeeToPay':0, 'numStorageYears':0, 'assignee':'', hidden:true, storageError:''};
+    this.state = {'coinId':-1,'description':'', 'storagePaidThru':0, 'storageFee':0, 'lateFee':0, 'feesLastChanged':0, 'imgUrls':[], 'listable':true, 'listingPrice':0, 'storageFeeToPay':0, 'numStorageYears':0, 'assignee':'', hidden:true, storageError:'', account:''};
     this.onList = this.onList.bind(this);
 
     this.onAssign = this.onAssign.bind(this);
@@ -14,22 +16,6 @@ class Coin extends Component {
     this.onPayStorage = this.onPayStorage.bind(this);
     this.onChangeNumYears = this.onChangeNumYears.bind(this);
     this.onUnlist = this.onUnlist.bind(this);
-  }
-  padZero(num) {
-      if(num <= 9 && num >= 0) {
-          return '0' + num;
-      } else {
-          return(num);
-      }
-  }
-
-  formatTs(ts) {
-    if (ts === 0) {
-      return "";
-    } else {
-      var d = new Date(ts*1000);
-      return ("" + d.getFullYear() + "-" + this.padZero(d.getMonth()) + "-" +  this.padZero(d.getDate()) + " " +  this.padZero(d.getHours()) + ":" + this.padZero(d.getMinutes()) + ":" + this.padZero(d.getSeconds()));
-    }
   }
   onList(price) {
      this.props.onList(this.state.coinId, price);
@@ -54,6 +40,8 @@ class Coin extends Component {
       }
       fee += parseInt(this.state.numStorageYears)*this.state.storageFee;
       this.props.onPayStorage(this.state.coinId, fee);
+      this.setState({'numStorageYears':0});
+      
   }
   onChangeNumYears(event) {
       this.setState({'numStorageYears':parseInt(event.target.value)});
@@ -64,8 +52,8 @@ class Coin extends Component {
         return <div/>;
     }
     var listable = "";
-    if (this.state.listable) {
-        listable = <List onList={this.onList} onUnlist={this.onUnlist} listed={(this.state.listingPrice==0)}/>;
+    if (this.state.listable && this.state.owner === this.state.account) {
+        listable = <fieldset><List onList={this.onList} onUnlist={this.onUnlist} listed={(this.state.listingPrice==0)}/></fieldset>;
     }
     var buy = ""
     if (this.state.listingPrice != 0) {
@@ -91,6 +79,10 @@ class Coin extends Component {
     if (this.state.storageError != "") {
        storageError = <p className="validation-error" ref="validation_error">{this.state.storageError}</p>;
     }
+    var assign = "";
+    if (this.state.owner === this.state.account) {
+        assign = <Assign onAssign={this.onAssign}/>;
+    }
     return (<div className="coin-info">
       <h1 className="description pure-u-2-3">
         {this.state.description}
@@ -103,9 +95,9 @@ class Coin extends Component {
         </div>
 
         <div className="coin-info__details pure-u-1-3 pure-form pure-form-stacked">
-          <h2 className="coin-info__details__title">Coin Details</h2>
+          <h2 className="coin-info__details__title">Item Details</h2>
           <div className="coinId">
-          <label>Coin Id:</label>
+          <label>Item Id:</label>
           <span className="value">{this.state.coinId}</span>
           </div>
           <div className="assignedTo">
@@ -120,7 +112,7 @@ class Coin extends Component {
 
           <div className="storagePaidThru">
           <label>Storage Paid Thru:</label>
-          <span className="value">{this.formatTs(this.state.storagePaidThru)}</span>
+          <span className="value">{formatTs(this.state.storagePaidThru)}</span>
           </div>
 
           <div className="storageFee">
@@ -130,20 +122,19 @@ class Coin extends Component {
 
           <div className="lateFee">
           <label>Late Fee:</label>
-          <span className="value">{(this.state.lateFee/1000000000000000000)} Ether/year</span>
+          <span className="value">{(this.state.lateFee/1000000000000000000)} Ether</span>
           </div>
 
           <div className="feesLastChanged">
           <label>Fees Last Changed:</label>
-          <span className="value">{this.formatTs(this.state.feesLastChanged)}</span>
+          <span className="value">{formatTs(this.state.feesLastChanged)}</span>
           <span className="coin-details__explainer">* fee can only be changed once per year</span>
           </div>
 
           {buy}
+          <Fineprint />
 
-          <fieldset>
-            {listable}
-          </fieldset>
+          {listable}
 
           <fieldset>
             {storageError}
@@ -151,8 +142,8 @@ class Coin extends Component {
             <input className="list-storage__input" type="text" onChange={this.onChangeNumYears}/> <span className="years__details">years at {(this.state.storageFee/1000000000000000000)} Ether/year</span>
             <button onClick={this.onPayStorage} className="pure-button pure-button-primary">Pay for storage</button>
           </fieldset>
+          {assign}
 
-          <Assign onAssign={this.onAssign}/>
 
           </div>
       </div>

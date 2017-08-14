@@ -14,6 +14,15 @@ class DataProxy {
        this.contract.Unlisted({}, {'fromBlock':'latest'}).watch(function(error, result) {
            cb(error, result, 'Unlisted');
        });
+       this.contract.Assignment({}, {'fromBlock':'latest'}).watch(function(error, result) {
+           cb(error, result, 'Assignment');
+       });
+       this.contract.StoragePaid({}, {'fromBlock':'latest'}).watch(function(error, result) {
+           cb(error, result, 'StoragePaid');
+       });
+       this.contract.Withdraw({}, {'fromBlock':'latest'}).watch(function(error, result) {
+           cb(error, result, 'Withdraw');
+       });
     }
     
     // Get a coin by id 
@@ -33,18 +42,6 @@ class DataProxy {
     unlist(coinId) {
         return this.contract.unlist(parseInt(coinId));
     }
-    feature(coinId) {
-        this.contract.featured.call().then(function(featured) {
-            if(featured.indexOf(coinId) == -1) {
-              featured.append(coinId);
-              this.contract.feature(featured);
-            }
-        });
-    }
-    getFeatured() {
-        return this.contract.featured.call();
-    }
-
     buy(coinId, price) {
         return this.contract.buy(parseInt(coinId), {value:price});
     }
@@ -64,7 +61,9 @@ class DataProxy {
         });
       
     }
+    getBalance(user) {
+        return this.contract.balances.call(user);  
+    }
 }
 
 export default DataProxy;
-

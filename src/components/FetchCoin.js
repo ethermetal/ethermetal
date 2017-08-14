@@ -21,7 +21,7 @@ class FetchCoin extends Component {
 
    render() {
       return(<div className="fetchCoin pure-form">
-             <label className="nav-link">Find coin by:</label>
+             <label className="nav-link">Find item by:</label>
              <input type="text" placeholder="id" name="coinId" onChange={this.changeCoinId}/>
              <button onClick={this.onFetch} className="pure-button pure-button-primary">Go</button>
              </div>);

@@ -31,6 +31,7 @@ code {
   box-sizing: border-box;
   width: 100%;
   padding: 20px;
+  padding-top: 50px;
 }
 
 .pure-button {
@@ -316,4 +317,20 @@ footer ul li a:active {
 
 .coin-info .coin-info__details .list-storage__input {
   display: inline-block;
+}
+.fineprint {
+  color:white;
+  font-size:8pt;
+  font-style:italic;
+  white-space:normal;
+}
+.fineprint2 {
+  color:black;
+  font-size:8pt;
+  font-style:italic;
+  white-space:normal;
+}
+.balanceText {
+  color:#666;
+  font-size: 12px;
 }

@@ -6,7 +6,8 @@ import FetchCoin from './components/FetchCoin'
 import DataProxy from './DataProxy'
 import AccountSelector from './components/AccountSelector';
 import Gitter from 'react-sidecar';
-
+import Fineprint from './components/Fineprint';
+import formatTs from './TimeFormat';
 import './css/oswald.css'
 import './css/open-sans.css'
 import './css/pure-min.css'
@@ -23,7 +24,8 @@ class App extends Component {
       accounts: [],
       listingPrice: null,
       coinId: null,
-      noWallet: false
+      noWallet: false,
+      balance: null
 
     }
     this.onFetch = this.onFetch.bind(this);
@@ -37,9 +39,12 @@ class App extends Component {
     this.onChangeAccount = this.onChangeAccount.bind(this);
     this.onChangeCoin = this.onChangeCoin.bind(this);
   }
+
+  
   onFetch(id) {
       this.state.dp.getCoin(id).then( (coinInfo) => {
           coinInfo['hidden'] = false;
+          coinInfo['account'] = this.state.web3.eth.defaultAccount;
           this.refs.coin1.setState(coinInfo);
           this.setState({'listingPrice': coinInfo['listingPrice'], 'coinId': coinInfo['coinId'] });
           location.hash = "#/coin/" + id;
@@ -127,6 +132,7 @@ class App extends Component {
       warehouseReceipt.deployed().then((instance) => {
         var dp = new DataProxy(instance, warehouseReceipt.web3);
         th.setState({'dp':dp});
+        th.updateBalance();
         var defaultPage = 0;
         var m = location.hash.match(/#\/coin\/(\d+)/);
         if (m) {
@@ -137,11 +143,18 @@ class App extends Component {
         var queue = []
         dp.listen(function(error, item, type) {
             if (type == 'ListingSold') {
-               queue.push(item.args.recordId.toNumber() + ' sold for ' + th.state.web3.fromWei(item.args.price,'ether') + ' ether');
+               queue.push('Item ' + item.args.recordId.toNumber() + ' sold for ' + th.state.web3.fromWei(item.args.price,'ether') + ' ether');
             } else if(type == 'Listed') {
-               queue.push(item.args.recordId.toNumber() + ' listed for ' + th.state.web3.fromWei(item.args.price,'ether') + ' ether');
+               queue.push('Item ' + item.args.recordId.toNumber() + ' listed for ' + th.state.web3.fromWei(item.args.price,'ether') + ' ether');
             } else if(type == 'Unlisted') {
-               queue.push(item.args.recordId.toNumber() + ' unlisted');
+               queue.push('Item ' + item.args.recordId.toNumber() + ' unlisted');
+            } else if(type == 'Assignment') {
+               queue.push('Item ' + item.args.recordId.toNumber() + ' assigned to ' + item.args.assignee.toString());
+            } else if(type == 'StoragePaid') {
+               queue.push('Item ' + item.args.recordId.toNumber() + ' storage paid thru ' + formatTs(item.args.paidThru) );
+            } else if(type == 'Withdraw') {
+               queue.push(item.args.user + ' has withdrawn ' + th.state.web3.fromWei(item.args.amount,'ether') + ' ether');
+               this.updateBalance();
             }
         });
         setInterval(function() {
@@ -163,12 +176,27 @@ class App extends Component {
 
   onChangeAccount(account) {
     this.state.web3.eth.defaultAccount = account;
+    this.refs.coin1.setState({'account':account});
+    this.updateBalance();
+  }
+  updateBalance() {
+    if (this.state.dp !== null) {
+        var th = this;
+        this.state.dp.getBalance(this.state.web3.eth.defaultAccount).then(function(bal) {
+            if (th.state.balance == null || th.state.balance.toNumber() != bal.toNumber()) {
+               th.setState({'balance':bal});
+            }
+        });
+
+    }
   }
 
   render() {
     var buy = '';
+    var th = this;
+    this.updateBalance();
     if (this.state.listingPrice) {
-      buy = <button className="pure-button pure-button-purchase" onClick={this._onBuy}>Buy for {this.state.web3.fromWei(this.state.listingPrice,'ether')} Ether</button>;
+      buy = <div className="account__buy-button"><button className="pure-button pure-button-purchase" onClick={this._onBuy}>Buy for {this.state.web3.fromWei(this.state.listingPrice,'ether')} Ether</button>                 <p className="fineprint">Purchase subject to terms below.</p></div> ;
     }
     var positiveNotification = "";
     if (this.state.positiveNotification) {
@@ -181,6 +209,11 @@ class App extends Component {
     if (this.state.noWallet) {
         return(<p>An Ethereum wallet is required. Please download <a href="https://metamask.io/">Metamask</a>.</p>);
     }
+    var withdraw = "";
+    if (this.state.balance != null && this.state.balance > 0) {
+       var bal = th.state.web3.fromWei(this.state.balance, 'ether').toNumber();
+       withdraw = <div><span className="balanceText">Balance from items sold: {bal} ether</span><button onClick={this.onWithdraw}>Withdraw Balance</button></div>;
+    }
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
@@ -190,11 +223,9 @@ class App extends Component {
               {positiveNotification}
               {negativeNotification}
               <label>Your Account</label>
-              <AccountSelector ref="as" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
-              <button onClick={this.onWithdraw}>Withdraw</button>
-              <div className="account__buy-button">
-                {buy}
-              </div>
+              <AccountSelector ref="accountSelector" onChangeAccount={this.onChangeAccount} accounts={this.state.accounts} />
+              {withdraw}
+              {buy}
             </div>
         </nav>
         <h2>TEST MODE</h2>
@@ -206,6 +237,7 @@ class App extends Component {
         
         <main className="container">
            <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onUnlist={this.onUnlist} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
+
         </main>
 
         <footer>

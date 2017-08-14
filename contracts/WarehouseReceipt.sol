@@ -1,5 +1,8 @@
 pragma solidity ^0.4.13;
 
+contract NotifyContract {
+    function saleNotify(uint recordId, uint price, address from, address to) returns (bool success);
+}
 
 contract WarehouseReceipt {
     enum RecordState { inWarehouse, pickedUp, repoed, lostOrStolen }
@@ -64,6 +67,19 @@ contract WarehouseReceipt {
         address from,
         address to
     );
+    event Transfer (
+        uint recordId,
+        address from,
+        address to
+    );
+    event StoragePaid (
+        uint recordId,
+        uint paidThru
+    );
+    event Withdraw (
+        address user,
+        uint amount
+    );
 
     Record[] public records; 
 
@@ -74,18 +90,21 @@ contract WarehouseReceipt {
     mapping(uint => uint) public listing;
 
     // Balances for items sold
-    mapping(address => uint) balances;
+    mapping(address => uint) public balances;
+   
+    // These addresses are allowed to receive transfers of contracts from any address or send to contracts of any address
+    mapping(address => bool) public authorizedTransferAgents;
+
+    // These address contracts are allowed to own coins.
+    mapping(address => bool) public authorizedBuyContracts;
 
     // Total balance of storage fees
     uint public storageBalance;
 
     address ownerAddress;
-
-    //Return the owner of something from the string for compatibility with asset
-    function owner(string _recordId) returns (address ownerAddress) {
-       uint idx = stringToUint(_recordId);
-       return records[idx].owner;
-    }
+  
+    // Callback address for adding affiliate contract 
+    address notifyAddress;
 
     // Check if the sender is the owner of the item
     modifier onlyOwner(uint _recordId) {
@@ -97,6 +116,24 @@ contract WarehouseReceipt {
     modifier onlyMasterOwner {
        require (msg.sender == ownerAddress); 
        _;
+    }
+     
+    // Authorized transfer agents can transfer ownership without selling. This can be used by other contracts. 
+    function transfer(uint _recordId, address to) onlyOwner(_recordId) {
+       require(authorizedTransferAgents[msg.sender] || authorizedTransferAgents[to]);
+       records[_recordId].owner = to;
+       Transfer(_recordId, msg.sender, to);
+    }
+
+    function changeTransferAuthorization(address agent, bool authorized) onlyMasterOwner {
+       authorizedTransferAgents[agent] = authorized;
+    } 
+    function changeContractBuyAuthorization(address authorizedContract, bool authorized) onlyMasterOwner {
+       authorizedBuyContracts[authorizedContract] = authorized;
+    }
+
+    function setNotifyAddress(address _notifyAddress) onlyMasterOwner {
+       notifyAddress = _notifyAddress;
     } 
 
     // Initiate the contract
@@ -158,9 +195,16 @@ contract WarehouseReceipt {
 
        return true;
     }
+    function isContract(address addr) returns (bool) {
+       uint size;
+       assembly { size := extcodesize(addr) }
+       return size > 0;
+    }
 
     // Buy a listed item
     function buy(uint _recordId) payable returns (bool success) {
+       // Only authorized contracts are allowed to buy
+       require(!isContract(msg.sender) || authorizedBuyContracts[msg.sender]);
        require(listing[_recordId] > 0);
        require(listing[_recordId] == msg.value);
        require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.inWarehouse );
@@ -169,6 +213,11 @@ contract WarehouseReceipt {
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
+       
+       if (notifyAddress != 0x0) {
+           NotifyContract notifyContract = NotifyContract(notifyAddress);
+           require(notifyContract.saleNotify(_recordId, msg.value, oldOwner, msg.sender));
+       }
        ListingSold(_recordId, msg.value, oldOwner, msg.sender);
 
        return true;
@@ -180,21 +229,9 @@ contract WarehouseReceipt {
        var withdrawal = balances[msg.sender];
        balances[msg.sender] = 0;
        msg.sender.transfer(withdrawal);
+       Withdraw(msg.sender, withdrawal);
     } 
 
-    function stringToUint(string s) constant returns (uint result) {
-        bytes memory b = bytes(s);
-        uint i;
-        result = 0;
-        for (i = 0; i < b.length; i++) {
-            uint c = uint(b[i]);
-            require (c >= 48 && c <= 57); 
-            // We want the number to be unique, so we don't allow extra leading 0's
-            require (i==0 || result > 0 || c > 48);
-            result = result * 10 + (c - 48);
-        }
-    }
-    
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
     // The item may be picked up after it is assigned
     function assign(uint _recordId, string _assignee) onlyOwner(_recordId) {
@@ -260,6 +297,7 @@ contract WarehouseReceipt {
           records[_recordId].storagePaidThru += ((msg.value - records[_recordId].lateFee) / records[_recordId].storageFee)*(1 years);
        }
        storageBalance += msg.value;
+       StoragePaid(_recordId, records[_recordId].storagePaidThru);
     }
     
     // Determine how much is due
