@@ -13,7 +13,11 @@ class Assign extends Component {
    }
 
    onAssign() {
-     this.props.onAssign(this.state.assignee);
+     if (this.state.assignee == '') {
+         alert("Assignee cannot be blank");
+     } else {
+         this.props.onAssign(this.state.assignee);
+     }
    }
 
    render() {

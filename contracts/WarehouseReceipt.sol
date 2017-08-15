@@ -172,8 +172,8 @@ contract WarehouseReceipt {
        require(storageFee < ((records[_recordId].storageFee*104)/100));
        if ((lateFee > records[_recordId].lateFee) || (storageFee > records[_recordId].storageFee)) {
            require(records[_recordId].feesLastChanged < (now - (1 years)));
+           records[_recordId].feesLastChanged = now;
        }
-       records[_recordId].feesLastChanged = now;
        records[_recordId].storageFee = storageFee;
        records[_recordId].lateFee = lateFee;
     }
@@ -195,6 +195,8 @@ contract WarehouseReceipt {
 
        return true;
     }
+
+    // See if the address is a contract
     function isContract(address addr) returns (bool) {
        uint size;
        assembly { size := extcodesize(addr) }
@@ -234,7 +236,9 @@ contract WarehouseReceipt {
     // Assign the contract to a name making it non-negotiable. This must be done before the item may be picked up.
     // The item may be picked up after it is assigned
     function assign(uint _recordId, string _assignee) onlyOwner(_recordId) {
+       require(!emptyStr(_assignee));
        require(listing[_recordId] == 0);
+       require(emptyStr(records[_recordId].assignee));
        records[_recordId].owner = 0;
        records[_recordId].assignee = _assignee;
        Assignment(_recordId, _assignee);
