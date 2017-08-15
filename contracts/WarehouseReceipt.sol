@@ -168,8 +168,8 @@ contract WarehouseReceipt {
 
     // The storage fee may be raised up to 4% per year.
     function adjustFee(uint _recordId, uint storageFee, uint lateFee) onlyMasterOwner {
-       require(lateFee < ((records[_recordId].lateFee*104)/100));
-       require(storageFee < ((records[_recordId].storageFee*104)/100));
+       require(lateFee <= ((records[_recordId].lateFee*104)/100));
+       require(storageFee <= ((records[_recordId].storageFee*104)/100));
        if ((lateFee > records[_recordId].lateFee) || (storageFee > records[_recordId].storageFee)) {
            require(records[_recordId].feesLastChanged < (now - (1 years)));
            records[_recordId].feesLastChanged = now;
@@ -215,12 +215,12 @@ contract WarehouseReceipt {
        records[_recordId].owner = msg.sender;
        // Seller could potentially be a contract, which fails here preventing a sale.
        balances[oldOwner] += msg.value;
+       ListingSold(_recordId, msg.value, oldOwner, msg.sender);
        if (notifyAddress != 0x0) {
            NotifyContract notifyContract = NotifyContract(notifyAddress);
            require(notifyContract.saleNotify(_recordId, msg.value, oldOwner, msg.sender));
        }
-       ListingSold(_recordId, msg.value, oldOwner, msg.sender);
-
+       
        return true;
     }
    
@@ -316,22 +316,11 @@ contract WarehouseReceipt {
        }
     }
     
-    // Find when the storage is paid thru
-    function getStorageFees(uint _recordId) returns(uint storagePaidThru, uint storageFee, uint lateFee) {
-       storagePaidThru = records[_recordId].storagePaidThru;
-       storageFee = records[_recordId].storageFee;
-       lateFee = records[_recordId].lateFee;
-    }
-
     // Allows the owner to withdraw money from the contract
     function withdrawFees(uint _amount) onlyMasterOwner returns(bool success) {
        require(storageBalance >= _amount);
        storageBalance -= _amount;
-       if (msg.sender.send(_amount)) {
-           return true;
-       } else {
-           return false;
-       }
+       require (msg.sender.send(_amount));
     }
    
     // Report lost or stolen. Insurance should recover reimburse for the item
@@ -341,6 +330,7 @@ contract WarehouseReceipt {
        LostOrStolen(_recordId);
     }
 
+    // Get information about a record
     function getRecord(uint recordId) returns(address _owner, string _description, string _assignee, string _imgUrls, string _warehouse, uint _feesLastChanged, uint _storagePaidThru, uint _storageFee, uint _lateFee, RecordState _state, uint _price) {
        _owner = records[recordId].owner;
        _description = records[recordId].description;
