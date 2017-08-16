@@ -54,7 +54,7 @@ contract WarehouseReceipt {
     event LostOrStolen (
         uint recordId,
         address owner,
-        uint payoutInUsdCents
+        uint payoutInWei
     );
     event Listed (
         uint recordId,
@@ -111,7 +111,6 @@ contract WarehouseReceipt {
     // Total balance of storage fees
     uint public storageBalance;
 
-   
 
     address ownerAddress;
   
@@ -191,21 +190,18 @@ contract WarehouseReceipt {
     }
     
     // List an item
-    function list(uint _recordId, uint price) onlyOwner(_recordId) returns (bool success) {
+    function list(uint _recordId, uint price) onlyOwner(_recordId) {
        require(records[_recordId].state == RecordState.inWarehouse); 
        listing[_recordId] = price;
        Listed(_recordId, price);
 
-       return true;
     }
 
     // Un-list an item
-    function unlist(uint _recordId) onlyOwner(_recordId) returns (bool success) {
+    function unlist(uint _recordId) onlyOwner(_recordId) {
        require(listing[_recordId] != 0);
        listing[_recordId] = 0;
        Unlisted(_recordId);
-
-       return true;
     }
 
     // See if the address is a contract
@@ -216,7 +212,7 @@ contract WarehouseReceipt {
     }
 
     // Buy a listed item
-    function buy(uint _recordId) payable returns (bool success) {
+    function buy(uint _recordId) payable {
        // Only authorized contracts are allowed to buy
        require(!isContract(msg.sender) || authorizedBuyContracts[msg.sender]);
        require(listing[_recordId] > 0);
@@ -232,8 +228,6 @@ contract WarehouseReceipt {
            NotifyContract notifyContract = NotifyContract(notifyAddress);
            require(notifyContract.saleNotify(_recordId, msg.value, oldOwner, msg.sender));
        }
-       
-       return true;
     }
    
     // Withdraw balance for items sold
