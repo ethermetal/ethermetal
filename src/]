@@ -54,31 +54,11 @@ class DataProxy {
         console.log("Paying storage " + value);
         return this.contract.payStorage(coinId, {value:value});
     }
-    getPriceHistory(coinId, cb) {
+    getPriceHistory(coinId) {
         var history = [];
-        var web3 = this.web3;
         this.contract.ListingSold({'recordId':coinId}, {fromBlock:0, toBlock: 'latest'}).get(function(error, logs) {
-           var i = 0;
-           var j = 0;
-           var batch = web3.createBatch()
-
-           for(var i=0;i < logs.length;i++) {
-              batch.add(web3.eth.getBlock(logs[i].blockNumber, function(error, result) {
-                var log = logs[j];
-
-                if (!error) {
-                  var hist = {'date': result.timestamp, 'from':logs[j].args.from, 'to':logs[j].args.to, 'price':web3.fromWei(logs[j].args.price,'ether'), 'recordId':logs[j].args.recordId.toNumber()};
-                  history.push(hist);
-                }
-                j++;
-                if (j == logs.length) {
-                  cb(history);
-                }
-              }));
-           }
-           batch.execute();
+           history.push(logs);
         });
-      
     }
     getInsuredValue(coinId) {
         return this.contract.insuredValueInUsdCents.call(parseInt(coinId));

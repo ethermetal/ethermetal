@@ -38,8 +38,12 @@ class App extends Component {
     this.onPayStorage = this.onPayStorage.bind(this);
     this.onChangeAccount = this.onChangeAccount.bind(this);
     this.onChangeCoin = this.onChangeCoin.bind(this);
+    this.onShowInsuredAmount = this.onShowInsuredAmount.bind(this);
+    this.onFetchHistory = this.onFetchHistory.bind(this);
   }
-
+  onFetchHistory(coinId, cb) {
+      this.state.dp.getPriceHistory(coinId, cb);
+  }
   
   onFetch(id) {
       this.state.dp.getCoin(id).then( (coinInfo) => {
@@ -62,6 +66,11 @@ class App extends Component {
   onChangeCoin(event) {
       var m = event.target.hash.match(/#\/coin\/(\d+)/);
       return this.onFetch(m[1]);
+  }
+  onShowInsuredAmount(coinId) {
+      this.state.dp.getInsuredValue(coinId).then(function(val) {
+          alert("Coin " + coinId + " is insured for " + (val/100.0) + " US dollars");
+      });
   }
 
   componentWillMount() {
@@ -236,7 +245,7 @@ class App extends Component {
         </nav>
         
         <main className="container">
-           <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onUnlist={this.onUnlist} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} name="coin1" />
+           <Coin ref="coin1" onChangeAccount={this.onChangeAccount} onList={this.onList} onUnlist={this.onUnlist} onAssign={this.onAssign} onBuy={this.onBuy} onPayStorage={this.onPayStorage} onWithdraw={this.onWithdraw} onShowInsuredAmount={this.onShowInsuredAmount} onFetchHistory={this.onFetchHistory} name="coin1" />
 
         </main>
 

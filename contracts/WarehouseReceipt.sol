@@ -52,7 +52,9 @@ contract WarehouseReceipt {
     
     // Lost or stolen
     event LostOrStolen (
-        uint recordId
+        uint recordId,
+        address owner,
+        uint payoutInUsdCents
     );
     event Listed (
         uint recordId,
@@ -80,11 +82,18 @@ contract WarehouseReceipt {
         address user,
         uint amount
     );
+    event InsuredValueChange (
+        uint recordId,
+        uint valueInUsdCents
+    );
 
     Record[] public records; 
 
     mapping(uint => string) public warehouses;
     uint public numWarehouses;
+
+    // Listing of insured value 
+    mapping(uint => uint) public insuredValueInUsdCents;
 
     // Listings of items for sale
     mapping(uint => uint) public listing;
@@ -98,8 +107,11 @@ contract WarehouseReceipt {
     // These address contracts are allowed to own coins.
     mapping(address => bool) public authorizedBuyContracts;
 
+
     // Total balance of storage fees
     uint public storageBalance;
+
+   
 
     address ownerAddress;
   
@@ -237,7 +249,7 @@ contract WarehouseReceipt {
     // The item may be picked up after it is assigned
     function assign(uint _recordId, string _assignee) onlyOwner(_recordId) {
        require(!emptyStr(_assignee));
-       require(listing[_recordId] == 0);
+       require(listing[_recordId] == 0 && records[_recordId].state == RecordState.inWarehouse);
        require(emptyStr(records[_recordId].assignee));
        records[_recordId].owner = 0;
        records[_recordId].assignee = _assignee;
@@ -277,8 +289,9 @@ contract WarehouseReceipt {
        // Checks to make sure item is valid 
        require((!emptyStr(description)) && (!emptyStr(imgUrls)) && (storageFee > 0) && (lateFee >= 0));
 
-       records.push(Record(initialOwner, description, "", imgUrls, warehouse, now, storagePaidThru, storageFee, lateFee, RecordState.inWarehouse));
+       records.push(Record(initialOwner, description, "", imgUrls, warehouse, now, storagePaidThru, storageFee, lateFee,  RecordState.inWarehouse));
        recordId = records.length - 1;
+
        Created(recordId);
     }
 
@@ -317,17 +330,22 @@ contract WarehouseReceipt {
     }
     
     // Allows the owner to withdraw money from the contract
-    function withdrawFees(uint _amount) onlyMasterOwner returns(bool success) {
+    function withdrawFees(uint _amount) onlyMasterOwner {
        require(storageBalance >= _amount);
        storageBalance -= _amount;
        require (msg.sender.send(_amount));
     }
    
     // Report lost or stolen. Insurance should recover reimburse for the item
-    function reportLostOrStolen(uint _recordId) onlyMasterOwner {
+    function reportLostOrStolen(uint _recordId) payable onlyMasterOwner {
+       require(records[_recordId].owner != 0 && records[_recordId].state == RecordState.inWarehouse);
        records[_recordId].state = RecordState.lostOrStolen;
        listing[_recordId] = 0;
-       LostOrStolen(_recordId);
+       address formerOwner = records[_recordId].owner;
+       records[_recordId].owner = 0;
+       formerOwner.transfer(msg.value);
+
+       LostOrStolen(_recordId, formerOwner, msg.value);
     }
 
     // Get information about a record
@@ -344,4 +362,11 @@ contract WarehouseReceipt {
        _state = records[recordId].state;
        _price = listing[recordId];
     }
+    
+    // Set insured value for an item
+    function setInsuredValue(uint recordId, uint usdCents) onlyMasterOwner { 
+       insuredValueInUsdCents[recordId] = usdCents;
+       InsuredValueChange(recordId, usdCents);
+    }
+    
 }

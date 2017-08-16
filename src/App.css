@@ -334,3 +334,10 @@ footer ul li a:active {
   color:#666;
   font-size: 12px;
 }
+.popupLink {
+  text-decoration: underline;
+}
+.history td {
+  font-size:8pt;
+  padding:3px;
+}

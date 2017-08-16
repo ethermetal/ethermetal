@@ -4,6 +4,7 @@ import Assign from './Assign';
 import web3 from 'web3';
 import Fineprint from './Fineprint';
 import formatTs from '../TimeFormat';
+import PriceHistory from './PriceHistory';
 
 class Coin extends Component {
   constructor(props) {
@@ -16,6 +17,14 @@ class Coin extends Component {
     this.onPayStorage = this.onPayStorage.bind(this);
     this.onChangeNumYears = this.onChangeNumYears.bind(this);
     this.onUnlist = this.onUnlist.bind(this);
+    this.onShowInsuredAmount = this.onShowInsuredAmount.bind(this);
+    this.onFetchHistory = this.onFetchHistory.bind(this);
+  }
+  onFetchHistory(cb) {
+     this.props.onFetchHistory(this.state.coinId, cb);
+  }
+  onShowInsuredAmount() {
+     this.props.onShowInsuredAmount(this.state.coinId);
   }
   onList(price) {
      this.props.onList(this.state.coinId, price);
@@ -130,9 +139,10 @@ class Coin extends Component {
           <span className="value">{formatTs(this.state.feesLastChanged)}</span>
           <span className="coin-details__explainer">* fee can only be changed once per year</span>
           </div>
+          <PriceHistory ref="history" onFetchHistory={this.onFetchHistory} />
 
           {buy}
-          <Fineprint />
+          <Fineprint onShowInsuredAmount={this.onShowInsuredAmount}/>
 
           {listable}
 
