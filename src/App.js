@@ -240,7 +240,14 @@ class App extends Component {
         <h2>TEST MODE</h2>
         <nav className="navbar-secondary">
           <ul>
-            <li><a href="#/coin/0" key="coin_0" onClick={this.onChangeCoin}>First coin</a></li>
+            <li><a href="#/coin/0" key="coin_0" onClick={this.onChangeCoin}>1837 $5 US Gold Piece AU 55</a></li>
+            <li><a href="#/coin/1" key="coin_1" onClick={this.onChangeCoin}>1812 Capped Bust Half Dollar XF40</a></li>
+            <li><a href="#/coin/2" key="coin_2" onClick={this.onChangeCoin}>1938-D Buffalo Nickel MS 66+</a></li>
+            <li><a href="#/coin/3" key="coin_3" onClick={this.onChangeCoin}>1946 BTW Commemorative Half Dollar MS 66</a></li>
+            <li><a href="#/coin/4" key="coin_4" onClick={this.onChangeCoin}>1913-S Buffalo Nickel Type 2 AU 55</a></li>
+            <li><a href="#/coin/5" key="coin_5" onClick={this.onChangeCoin}>1913-D Buffalo Nickel Type 2 XF 40</a></li>
+            <li><a href="#/coin/6" key="coin_6" onClick={this.onChangeCoin}>1948 Franklin Half Dollar MS 64 FBL</a></li>
+
           </ul>
         </nav>
         

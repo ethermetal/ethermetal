@@ -1,6 +1,7 @@
 var WarehouseReceiptContract = artifacts.require('WarehouseReceipt');
+var config = require ('../config');
 var Web3 = require("web3");
-var web3 = new Web3(new Web3.providers.HttpProvider(config.provider);
+var web3 = new Web3(new Web3.providers.HttpProvider(config.provider));
 module.exports = function(callback) {
   console.log("start");
   WarehouseReceiptContract.deployed().then( (instance)=>{

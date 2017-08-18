@@ -1,5 +1,6 @@
 var WarehouseReceiptContract = artifacts.require('WarehouseReceipt');
 var Web3 = require("web3");
+var config = require ('../config');
 var web3 = new Web3(new Web3.providers.HttpProvider(config.provider));
 var pictures = ['QmbhgjbfrtXjaB7hf2FHpL62oR76rcrd3a1edMaEpzvkRQ', 'QmTi5RTCESP2B4TERnar7c4HXvTmwA5nLdSHGXruN9Xq9F','QmQML8QEeeWqweA2vWR3czgvrXmtXCpBytSZo6L1aQvXAd'];
 function getPictureUrls() {
