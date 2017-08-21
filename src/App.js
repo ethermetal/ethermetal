@@ -265,7 +265,7 @@ class App extends Component {
               <a href="#" className="pure-menu-heading pure-menu-link">Team</a>
             </li>
           </ul>
-          <p>EtherMetal is a product of Cherbi Group LLC of California.</p>
+          <p>EtherMetal is a product of Cherbi Group LLC of California.<br/> <a href="https://github.com/ethermetal/ethermetal">Ethermetal Code on Github</a></p>
         </footer>
 
       </div>
