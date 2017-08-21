@@ -257,7 +257,7 @@ class App extends Component {
         </main>
 
         <footer>
-          <ul>
+          <ul className="hidden">
             <li>
               <a href="#" className="pure-menu-heading pure-menu-link">About us</a>
             </li>
